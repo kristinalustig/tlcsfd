@@ -1,6 +1,7 @@
 require "conf"
 local P = require "player"
 local D = require "dog"
+local C = require "coffee"
 
 function love.load()
   
@@ -15,6 +16,7 @@ function love.load()
   currentSceneState = 1
   doorOpen = false
   handCursor = love.mouse.getSystemCursor("hand")
+  espressoFirst = true
   
   
   --testing
@@ -27,7 +29,7 @@ function love.load()
   keyLabelFont = gr.newImageFont("/assets/ui/keylabelfont.png", 'WASDEQudlrP`/ ')
   labelFont = gr.newImageFont("/assets/ui/labelfont.png", 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ')
   testFont = gr.newFont(10)
-  brewFont = gr.newFont(40)
+  brewFont = gr.newFont(30)
   mushRedImg = gr.newImage("/assets/mush1.png")
   mushSprite = {
     cadence = 200,
@@ -50,14 +52,15 @@ function love.load()
   brewBackground = gr.newImage("/assets/brew/brew-bg.png")
   orderSlip = gr.newImage("/assets/brew/orderslip.png")
   emptyCup = gr.newImage("/assets/brew/emptycup.png")
-  oneShot = gr.newImage("/assets/brew/oneshot.png")
-  twoShot = gr.newImage("/assets/brew/twoshot.png")
-  justMilk = gr.newImage("/assets/brew/justmilk.png")
-  latte = gr.newImage("/assets/brew/latte.png")
-  latteArt = gr.newImage("/assets/brew/latteart.png")
-  whippedCream = gr.newImage("/assets/brew/whippedcream.png")
-  sprinkles =gr.newImage("/assets/brew/sprinkles.png")
   
+  drinkIngredients = {}
+    drinkIngredients[1] = C.new("/assets/brew/oneshot.png", "shotOne")
+    drinkIngredients[2] = C.new("/assets/brew/twoshot.png", "shotTwo")
+    drinkIngredients[3] = C.new("/assets/brew/justmilk.png", "milk")
+    drinkIngredients[4] = C.new("/assets/brew/latte.png", "latte")
+    drinkIngredients[5] = C.new("/assets/brew/latteart.png", "art")
+    drinkIngredients[6] = C.new("/assets/brew/whippedcream.png", "whip")
+    drinkIngredients[7] = C.new("/assets/brew/sprinkles.png", "sprinkles")
   
   -- load consumables
   boneImg = gr.newImage("/assets/bone.png")
@@ -73,8 +76,6 @@ function love.load()
     dog5 = D.new(5),
     dog6 = D.new(6)
   }
-  
-  
   
   -- load ui
   brewButton = gr.newImage("/assets/ui/brew.png")
@@ -155,6 +156,8 @@ function love.draw(t)
       gr.draw(emptyCup, 278, 250)
       gr.draw(orderSlip, 360, 708)
     end
+    
+    showDrinkIngredientsIfSelected()
     
     showBrewPromptsBasedOnMouseLocation()
     
@@ -261,56 +264,82 @@ function showBrewPromptsBasedOnMouseLocation()
   if x > 750 and x < 938 and y > 167 and y < 494 then
     gr.printf("add whipped cream", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
+    brewHover = "whip"
   
   --sprinkles
   elseif x > 828 and x < 938 and y > 520 and y < 745 then
     gr.printf("add sprinkles", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
-  
+    brewHover = "sprinkles"
   --espresso
-  elseif x > 98 and x < 205 and y > 150 and y < 750 then
-    gr.printf("add espresso shot", 115, 948, 835, "center")
+elseif x > 98 and x < 205 and y > 350 and y < 750 then
+    if drinkIngredients[2].isInDrink == true then
+      gr.printf("two shots is plenty", 115, 948, 835, "center")
+    elseif espressoFirst == false then
+      gr.printf("can't add espresso after other ingredients", 115, 948, 835, "center")
+    else
+      gr.printf("add espresso shot", 115, 948, 835, "center")
+    end
     love.mouse.setCursor(handCursor)
+    brewHover = "espresso"
   
   --caramel
-  elseif x > 210 and x < 370 and y > 110 and y < 292 then
+  elseif x > 210 and x < 370 and y > 110 and y < 279 then
     gr.printf("add caramel syrup", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
+    brewHover = "espresso"
   
   --vanilla
-  elseif x > 98 and x < 205 and y > 150 and y < 750 then
+  elseif x > 377 and x < 493 and y > 110 and y < 257 then
     gr.printf("add vanilla syrup", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
+    brewHover = "vanilla"
     
   --raspberry
-  elseif x > 98 and x < 205 and y > 150 and y < 750 then
+  elseif x > 520 and x < 597 and y > 110 and y < 220 then
     gr.printf("add raspberry syrup", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
+    brewHover = "raspberry"
   
   --rawhide
-  elseif x > 98 and x < 205 and y > 150 and y < 750 then
+  elseif x > 614 and x < 689 and y > 110 and y < 220 then
     gr.printf("add rawhide syrup", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
+    brewHover = "rawhide"
     
   --get milk
-  elseif x > 98 and x < 205 and y > 150 and y < 750 then
+  elseif x > 114 and x < 200 and y > 124 and y < 256 then
     gr.printf("add milk", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
+    brewHover = "milk"
     
   --dump out drink
-  elseif x > 98 and x < 205 and y > 150 and y < 750 then
+  elseif x > 837 and x < 921 and y > 776 and y < 872 then
     gr.printf("dump drink down sink", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
+    brewHover = "dump"
     
   --TODO: make finish icon
   
   else
     love.mouse.setCursor()
+    brewHover = nil
   end
   
   gr.reset()
   
 end
+
+function showDrinkIngredientsIfSelected()
+  
+  for k, v in pairs(drinkIngredients) do
+    if v.isInDrink == true then
+      gr.draw(v.img, v.x, v.y)
+    end
+  end
+  
+end
+
 
 
 --TESTING ONLY
@@ -327,6 +356,59 @@ function love.mousemoved(x, y, dx, dy, istouch)
   mousey = y
   
 end
+
+function love.mousereleased(x, y, button, istouch, presses)
+  
+  if brewHover == "espresso" then
+    
+    for k, v in pairs(drinkIngredients) do
+      if v.isInDrink == true and v.name ~= "shotOne" then
+        espressoFirst = false
+      end
+    end
+    
+    if espressoFirst == true then
+      if drinkIngredients[1].isInDrink == true then
+        drinkIngredients[2].isInDrink = true
+      else
+        drinkIngredients[1].isInDrink = true
+      end
+    end
+    
+  elseif brewHover == "milk" then
+    if drinkIngredients[1].isInDrink == true then
+      drinkIngredients[4].isInDrink = true
+    else
+      drinkIngredients[3].isInDrink = true
+    end
+    
+  elseif brewHover == "vanilla" then
+    drinkIngredients[1].isInDrink = true
+    
+  elseif brewHover == "caramel" then
+    drinkIngredients[1].isInDrink = true
+    
+  elseif brewHover == "raspberry" then
+    drinkIngredients[1].isInDrink = true
+    
+  elseif brewHover == "rawhide" then
+    drinkIngredients[1].isInDrink = true
+    
+  elseif brewHover == "whip" then
+    drinkIngredients[6].isInDrink = true
+    
+  elseif brewHover == "sprinkles" then
+    drinkIngredients[7].isInDrink = true
+    
+  elseif brewHover == "dump" then
+    for k, v in pairs(drinkIngredients) do
+      v.isInDrink = false
+    end
+    espressoFirst = true
+  end
+  
+end
+
 
 
 
