@@ -45,4 +45,46 @@ function M.checkMovement(player)
   
 end
 
+function M.isNearBrewTable(x, y)
+  
+  if x > 500 and y <= 140 then
+    return true
+  else
+    return false
+  end
+  
+end
+
+
+--menu has x coords of 200 - 399 and y coord of 180
+function M.isNearMenu(x, y)
+
+  if x < 440 and x > 300 and y <= 140 then
+    return true
+  else
+    return false
+  end
+
+end
+
+function M.isNearDog(x, y)
+
+  if x > 260 and x < 450 and y >= 240 then
+    return true
+  else
+    return false
+  end
+  
+end
+
+function M.isNearPastry(x, y)
+  
+  if x > 450 and y >= 240 then
+    return true
+  else
+    return false
+  end
+  
+end
+
 return M
