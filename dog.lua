@@ -34,15 +34,15 @@ function M.new(num)
   
 end
 
-function M:getCurrentFrame(t)
+function M.getCurrentFrame(dog, t)
   
-  local n = self.currFrameNum
+  local n = dog.currFrameNum
   
   if t % 10 ~= 0 then
     return n
   end
   
-  if self.isMoving == false then
+  if dog.isMoving == false then
     return n
   end
   
@@ -58,9 +58,9 @@ function M:getCurrentFrame(t)
   
   
   --check to see if direction changed, if so, move to corresponding frame in opposite direction
-  if self.isFacingUp == true and n < 5 then
+  if dog.isFacingUp == true and n < 5 then
     n = n + 4
-  elseif self.isFacingDown == true and n > 4 then
+  elseif dog.isFacingDown == true and n > 4 then
     n = n - 4
   end
   
@@ -68,7 +68,7 @@ function M:getCurrentFrame(t)
   
 end
 
-function M:moveDog()
+function M.moveDog(self)
   
   --avoid the weird wiggles when it gets soooo close but not quite there
   if math.abs(self.destinationX - self.x) < 10 and math.abs(self.destinationY- self.y) < 10 then

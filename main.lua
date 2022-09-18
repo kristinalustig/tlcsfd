@@ -9,8 +9,6 @@ function love.load()
   ph = love.physics
   key = love.keyboard
   
-  
-  
   -- global variables
   globalTimer = 0
   currentSceneState = 1
@@ -18,16 +16,12 @@ function love.load()
   handCursor = love.mouse.getSystemCursor("hand")
   espressoFirst = true
   
-  
   --testing
   mousex = 0
   mousey = 0
   
   -- load static assets for main area
   background = gr.newImage("/assets/background.png")
-  keyPromptFont = gr.newImageFont("/assets/font.png", 'ABCDEFGHIJ')
-  keyLabelFont = gr.newImageFont("/assets/ui/keylabelfont.png", 'WASDEQudlrP`/ ')
-  labelFont = gr.newImageFont("/assets/ui/labelfont.png", 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ')
   testFont = gr.newFont(10)
   brewFont = gr.newFont(30)
   mushRedImg = gr.newImage("/assets/mush1.png")
@@ -47,7 +41,6 @@ function love.load()
   sofaImg = gr.newImage("/assets/furniture/sofa.png")
   doorImg = gr.newImage("/assets/furniture/door.png")
   
-  
   -- load assets for brew scene
   brewBackground = gr.newImage("/assets/brew/brew-bg.png")
   orderSlip = gr.newImage("/assets/brew/orderslip.png")
@@ -65,7 +58,6 @@ function love.load()
   -- load consumables
   boneImg = gr.newImage("/assets/bone.png")
   
-  
   -- load player and npcs
   player = P.new()
   dogs = {
@@ -78,15 +70,10 @@ function love.load()
   }
   
   -- load ui
-  brewButton = gr.newImage("/assets/ui/brew.png")
-  chatButton = gr.newImage("/assets/ui/chat.png")
-  pauseButton = gr.newImage("/assets/ui/pause.png")
   dayLabel = gr.newImage("/assets/ui/day-label.png")
   credits = gr.newImage("/assets/ui/credits.png")
   title = gr.newImage("/assets/ui/title.png")
-  keyPromptE = gr.newImage("/assets/ui/keyprompt-e.png")
   keyPromptBrew = gr.newImage("/assets/ui/keyprompt-e.png")
-  keyPrompt = gr.newImage("/assets/ui/keyprompt-e.png")
   keyPromptBone = gr.newImage("/assets/ui/keyprompt-e-bone.png")
   keyPromptBrew = gr.newImage("/assets/ui/keyprompt-e-brew.png")
   keyPromptChat = gr.newImage("/assets/ui/keyprompt-e-chat.png")
@@ -108,9 +95,9 @@ function love.update(dt)
   
   --calculations for dog animations
   for k, v in pairs(dogs) do
-    if v.isInScene == true then
-      v.currFrameNum = v:getCurrentFrame(globalTimer)
-      v:moveDog()
+    if v.dogNum == 1 then
+      v.currFrameNum = D.getCurrentFrame(v, globalTimer)
+      D.moveDog(v)
     end
   end
   
@@ -121,7 +108,7 @@ end
 function love.draw(t)
 
 
-  if currentSceneState == 1 then
+  if currentSceneState == 1 or currentSceneState == 3 then
     
     gr.draw(background)
     P.checkMovement(player)
@@ -138,32 +125,43 @@ function love.draw(t)
     gr.draw(mushRedImg, mushSprite[mushSprite.currentFrameNum], 710, 790)
   
     for k, v in pairs(dogs) do
-      if v.isInScene == true then
+      if v.dogNum == 1 then
         gr.draw(v.sheet, v.frames[v.currFrameNum], v.x, v.y)
       end
     end
   
-    showCoords(player)
+    showCoords(player) --TODO remove after testing
   
     showOverheadPromptsBasedOnLocation()
+    
+    --TODO: show coffee cup on counter if coffee is done
     
   elseif currentSceneState == 2 then
     gr.draw(brewBackground)
     
-    
-    --if there's an order up
+    --TODO: if there's an order up
     if true then
       gr.draw(emptyCup, 278, 250)
       gr.draw(orderSlip, 360, 708)
     end
     
-    showDrinkIngredientsIfSelected()
+    C.showDrinkIngredientsIfSelected()
     
-    showBrewPromptsBasedOnMouseLocation()
+    C.showBrewPromptsBasedOnMouseLocation()
     
+    --TODO - "finish drink" button
+    
+  elseif currentSceneState == 4 then
+    
+    --TODO - create menu page
+    --TODO - esc to return
     
   end
   
+  if currentSceneState == 3 then
+    --TODO add in lil text chat thing. probably with a black overlay so you can focus on it. f to continue.
+    --TODO - "are you finished with the order? y/n"
+  end
   
   gr.setFont(testFont)
   gr.printf(""..mousex..", "..mousey, mousex, mousey-10, 200, "left")
@@ -188,6 +186,8 @@ function walkBobble(obj)
   end
 end
 
+
+
 -- return correct index for any animated non-npc sprite
 function getCurrentObjFrame(obj, t)
   if (t % obj.cadence == 0) then
@@ -205,6 +205,8 @@ function getCurrentObjFrame(obj, t)
 end
 
 
+
+
 function love.keypressed(key, scancode, isrepeat)
 
   if key == "e" and not isrepeat then
@@ -212,6 +214,8 @@ function love.keypressed(key, scancode, isrepeat)
   end
 
 end
+
+
 
 
 function changeSceneState()
@@ -235,6 +239,9 @@ function changeSceneState()
   
 end
 
+
+
+
 function showOverheadPromptsBasedOnLocation()
   
   local x = player.x
@@ -252,111 +259,8 @@ function showOverheadPromptsBasedOnLocation()
   
 end
 
-function showBrewPromptsBasedOnMouseLocation()
-  
-  local x = love.mouse.getX()
-  local y = love.mouse.getY()
-  
-  gr.setColor(love.math.colorFromBytes(74, 55, 120))
-  gr.setFont(brewFont)
-  
-  --whipped cream
-  if x > 750 and x < 938 and y > 167 and y < 494 then
-    gr.printf("add whipped cream", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "whip"
-  
-  --sprinkles
-  elseif x > 828 and x < 938 and y > 520 and y < 745 then
-    gr.printf("add sprinkles", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "sprinkles"
-  --espresso
-elseif x > 98 and x < 205 and y > 350 and y < 750 then
-    if drinkIngredients[2].isInDrink == true then
-      gr.printf("two shots is plenty", 115, 948, 835, "center")
-    elseif espressoFirst == false then
-      gr.printf("can't add espresso after other ingredients", 115, 948, 835, "center")
-    else
-      gr.printf("add espresso shot", 115, 948, 835, "center")
-    end
-    love.mouse.setCursor(handCursor)
-    brewHover = "espresso"
-  
-  --caramel
-  elseif x > 210 and x < 370 and y > 110 and y < 279 then
-    gr.printf("add caramel syrup", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "espresso"
-  
-  --vanilla
-  elseif x > 377 and x < 493 and y > 110 and y < 257 then
-    gr.printf("add vanilla syrup", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "vanilla"
-    
-  --raspberry
-  elseif x > 520 and x < 597 and y > 110 and y < 220 then
-    gr.printf("add raspberry syrup", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "raspberry"
-  
-  --rawhide
-  elseif x > 614 and x < 689 and y > 110 and y < 220 then
-    gr.printf("add rawhide syrup", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "rawhide"
-    
-  --get milk
-  elseif x > 114 and x < 200 and y > 124 and y < 256 then
-    gr.printf("add milk", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "milk"
-    
-  --dump out drink
-  elseif x > 837 and x < 921 and y > 776 and y < 872 then
-    gr.printf("dump drink down sink", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "dump"
-    
-  --TODO: make finish icon
-  
-  else
-    love.mouse.setCursor()
-    brewHover = nil
-  end
-  
-  gr.reset()
-  
-end
 
-function showDrinkIngredientsIfSelected()
-  
-  for k, v in pairs(drinkIngredients) do
-    if v.isInDrink == true then
-      gr.draw(v.img, v.x, v.y)
-    end
-  end
-  
-end
-
-
-
---TESTING ONLY
-function showCoords(obj)
-  
-  gr.setFont(testFont)
-  gr.printf(""..obj.x..", "..obj.y, obj.x+30, obj.y+30, 100, "left")
-  
-end
-
-function love.mousemoved(x, y, dx, dy, istouch)
-  
-  mousex = x
-  mousey = y
-  
-end
-
+--TODO - add in a "finish drink" button interaction here
 function love.mousereleased(x, y, button, istouch, presses)
   
   if brewHover == "espresso" then
@@ -406,6 +310,25 @@ function love.mousereleased(x, y, button, istouch, presses)
     end
     espressoFirst = true
   end
+  
+end
+
+
+
+
+
+--TESTING ONLY
+function showCoords(obj)
+  
+  gr.setFont(testFont)
+  gr.printf(""..obj.x..", "..obj.y, obj.x+30, obj.y+30, 100, "left")
+  
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+  
+  mousex = x
+  mousey = y
   
 end
 
