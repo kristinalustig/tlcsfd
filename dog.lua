@@ -8,6 +8,7 @@ function M.new(num)
       dogNum = num,
       sheet = gr.newImage("/assets/dogs/dog" .. num .. ".png"),
       name = getName(num),
+      chatImg = gr.newImage("/assets/dogs/dog" .. num .. "-chat.png"),
       isInScene = false,
       isFacingUp = true,
       frames = {},

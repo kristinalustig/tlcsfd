@@ -2,19 +2,32 @@ require "conf"
 local P = require "player"
 local D = require "dog"
 local C = require "coffee"
+local GD = require "gameData"
 
 function love.load()
   
   gr = love.graphics
   ph = love.physics
   key = love.keyboard
+  GD.initialize()
   
   -- global variables
   globalTimer = 0
+  globalSceneNum = 1
   currentSceneState = 1
   doorOpen = false
   handCursor = love.mouse.getSystemCursor("hand")
+  
+  --game state - coffee order
   espressoFirst = true
+  orderState = 1
+  wasOrderGood = false
+  currentDog = nil
+  currentDogNum = 1
+  showCupOnCounter = false
+  pastDogs = {}
+  possibleHeartNum = 10
+  numHearts = 1
   
   --testing
   mousex = 0
@@ -34,6 +47,10 @@ function love.load()
   mushSprite[2] = gr.newQuad(116, 0, 116, 68, mushRedImg)
   mushSprite[3] = gr.newQuad(232, 0, 116, 68, mushRedImg)
   mushSprite[4] = gr.newQuad(348, 0, 116, 68, mushRedImg)
+  chatBackground = gr.newImage("/assets/chat-bg.png")
+  finishedCoffee = gr.newImage("/assets/finishedCoffee.png")
+  heartEmpty = gr.newImage("/assets/heart-empty.png")
+  heartFull = gr.newImage("/assets/heart-full.png")
   
   counter = gr.newImage("/assets/furniture/counter.png")
   tablePurpleImg = gr.newImage("/assets/furniture/table-purple.png")
@@ -47,13 +64,13 @@ function love.load()
   emptyCup = gr.newImage("/assets/brew/emptycup.png")
   
   drinkIngredients = {}
-    drinkIngredients[1] = C.new("/assets/brew/oneshot.png", "shotOne")
-    drinkIngredients[2] = C.new("/assets/brew/twoshot.png", "shotTwo")
-    drinkIngredients[3] = C.new("/assets/brew/justmilk.png", "milk")
-    drinkIngredients[4] = C.new("/assets/brew/latte.png", "latte")
-    drinkIngredients[5] = C.new("/assets/brew/latteart.png", "art")
-    drinkIngredients[6] = C.new("/assets/brew/whippedcream.png", "whip")
-    drinkIngredients[7] = C.new("/assets/brew/sprinkles.png", "sprinkles")
+    drinkIngredients[1] = C.new(1, "/assets/brew/oneshot.png", "shotOne")
+    drinkIngredients[2] = C.new(2, "/assets/brew/twoshot.png", "shotTwo")
+    drinkIngredients[3] = C.new(3, "/assets/brew/justmilk.png", "milk")
+    drinkIngredients[4] = C.new(4, "/assets/brew/latte.png", "latte")
+    drinkIngredients[5] = C.new(5, "/assets/brew/latteart.png", "art")
+    drinkIngredients[6] = C.new(6, "/assets/brew/whippedcream.png", "whip")
+    drinkIngredients[7] = C.new(7, "/assets/brew/sprinkles.png", "sprinkles")
   
   -- load consumables
   boneImg = gr.newImage("/assets/bone.png")
@@ -87,6 +104,13 @@ end
 
 function love.update(dt)
   
+  --the end
+  if numHearts == possibleHeartNum then
+    globalSceneNum = 4
+  end
+  
+  currentDog = dogs["dog"..currentDogNum]
+  
   globalTimer = globalTimer + 1
   
   --calculations for obj animations
@@ -94,77 +118,136 @@ function love.update(dt)
 
   
   --calculations for dog animations
-  for k, v in pairs(dogs) do
-    if v.dogNum == 1 then
-      v.currFrameNum = D.getCurrentFrame(v, globalTimer)
-      D.moveDog(v)
-    end
+  currentDog.currFrameNum = D.getCurrentFrame(currentDog, globalTimer)
+  D.moveDog(currentDog)
+  
+   for k, v in pairs(pastDogs) do
+    v.currFrameNum = D.getCurrentFrame(v, globalTimer)
+    D.moveDog(v)
   end
   
+  if orderState == 3 then
+    -- check orders against each other here! but for now,
+    wasOrderGood = testDrinks(coffeeDrinks[currentDog.dogNum])
+  end
   
 end
 
 
 function love.draw(t)
+  
+  if globalSceneNum == 1 then
 
-
-  if currentSceneState == 1 or currentSceneState == 3 then
+    if currentSceneState == 1 or currentSceneState == 4 then
+      
+      gr.draw(background)
+      
+      gr.draw(dayLabel, 100, 20)
+      for i=1, numHearts do
+        gr.draw(heartFull, 300 + (50*i), 20, 0, .5, .5)
+      end
+      for i=numHearts+1, 10 do
+        gr.draw(heartEmpty, 300 + (50*i), 20, 0, .5, .5)
+      end
+      
+      
+      P.checkMovement(player)
+      gr.draw(player.sheet, player.currImg, player.x, player.y)
+      gr.draw(counter, 210, 320)
+      gr.draw(sofaImg, 590, 500)
     
-    gr.draw(background)
-    P.checkMovement(player)
-    gr.draw(player.sheet, player.currImg, player.x, player.y)
-    gr.draw(counter, 210, 320)
-    gr.draw(tablePurpleImg, 240, 510)
-    gr.draw(tableGreenImg, 600, 400)
-    gr.draw(sofaImg, 590, 500)
-  
-    if doorOpen == false then
-      gr.draw(doorImg, 460, 680)
-    end
-  
-    gr.draw(mushRedImg, mushSprite[mushSprite.currentFrameNum], 710, 790)
-  
-    for k, v in pairs(dogs) do
-      if v.dogNum == 1 then
+      if doorOpen == false then
+        gr.draw(doorImg, 460, 680)
+      end
+    
+      gr.draw(mushRedImg, mushSprite[mushSprite.currentFrameNum], 710, 790)
+      
+      gr.draw(currentDog.sheet, currentDog.frames[currentDog.currFrameNum], currentDog.x, currentDog.y)
+      
+      for k, v in pairs(pastDogs) do
         gr.draw(v.sheet, v.frames[v.currFrameNum], v.x, v.y)
       end
+      
+    
+      showCoords(player) --TODO remove after testing
+    
+      showOverheadPromptsBasedOnLocation()
+      
+      gr.draw(tablePurpleImg, 240, 510)
+      gr.draw(tableGreenImg, 600, 400)
+      
+      if showCupOnCounter == true then
+        gr.draw(finishedCoffee, 430, 360)
+      end
+      
+      for k, v in pairs(pastDogs) do
+      if v.showCupAtSeat == true then
+        gr.draw(finishedCoffee, seating[dogInfo[v.dogNum].sitChoiceOneId].cupX, seating[dogInfo[v.dogNum].sitChoiceOneId].cupY)
+      end
+      end
+      
+      
+    elseif currentSceneState == 2 then
+      gr.draw(brewBackground)
+      
+      --TODO: if there's an order up
+      if true then
+        gr.draw(emptyCup, 278, 250)
+        gr.draw(orderSlip, 360, 708)
+      end
+      
+      C.showDrinkIngredientsIfSelected()
+      
+      C.showBrewPromptsBasedOnMouseLocation()
+      
+      --TODO - "finish drink" button
+      
+    elseif currentSceneState == 3 then
+      
+      --TODO - create menu page
+      --TODO - esc to return
+      
     end
-  
-    showCoords(player) --TODO remove after testing
-  
-    showOverheadPromptsBasedOnLocation()
     
-    --TODO: show coffee cup on counter if coffee is done
-    
-  elseif currentSceneState == 2 then
-    gr.draw(brewBackground)
-    
-    --TODO: if there's an order up
-    if true then
-      gr.draw(emptyCup, 278, 250)
-      gr.draw(orderSlip, 360, 708)
+    if currentSceneState == 4 then
+      
+      gr.draw(chatBackground)
+      gr.draw(player.sheet, player.currImg, 760, 540)
+      gr.draw(dogs["dog1"].chatImg, 126, 280)
+      gr.setFont(brewFont)
+      gr.printf(dogInfo[currentDogNum].name, 120, 425, 176, "center")
+      gr.printf("You", 738, 475, 180, "center")
+      
+      --not started
+      if orderState == 1 then
+        gr.printf(dogInfo[currentDogNum].hello, 334, 250, 600, "left")
+        gr.printf("Coming right up!", 125, 500, 600, "left")
+        gr.printf("(Press 'F' to continue)", 98, 660, 832, "center")
+        
+      --in progress  
+      elseif orderState == 2 then
+        gr.printf(dogInfo[currentDogNum].finishedPrompt, 334, 250, 600, "left")
+        gr.printf("'Y' for yes, 'N' for no", 98, 560, 832, "center")
+        
+      --finished  
+      elseif orderState == 3 then
+        if wasOrderGood then
+          gr.printf(dogInfo[currentDogNum].positiveResponse, 334, 250, 600, "left")
+        else
+          gr.printf(dogInfo[currentDogNum].negativeResponse, 334, 250, 600, "left")
+        end
+        gr.printf("(Press 'F' to continue)", 98, 660, 832, "center")
+      --farewell  
+      elseif orderState == 4 then  
+        gr.printf(dogInfo[currentDogNum].staying, 334, 250, 600, "left")
+        gr.printf("(Press 'F' to continue)", 98, 660, 832, "center")
+      end
+      
     end
     
-    C.showDrinkIngredientsIfSelected()
-    
-    C.showBrewPromptsBasedOnMouseLocation()
-    
-    --TODO - "finish drink" button
-    
-  elseif currentSceneState == 4 then
-    
-    --TODO - create menu page
-    --TODO - esc to return
-    
+    gr.setFont(testFont)
+    gr.printf(""..mousex..", "..mousey, mousex, mousey-10, 200, "left")
   end
-  
-  if currentSceneState == 3 then
-    --TODO add in lil text chat thing. probably with a black overlay so you can focus on it. f to continue.
-    --TODO - "are you finished with the order? y/n"
-  end
-  
-  gr.setFont(testFont)
-  gr.printf(""..mousex..", "..mousey, mousex, mousey-10, 200, "left")
 
 end
 
@@ -212,9 +295,59 @@ function love.keypressed(key, scancode, isrepeat)
   if key == "e" and not isrepeat then
     changeSceneState()
   end
+  
+  if key == "f" and not isrepeat then
+    if currentSceneState == 4 then
+      if orderState == 1 then
+        orderState = orderState + 1
+        currentSceneState = 1
+      elseif orderState == 3 then
+        orderState = orderState + 1
+      elseif orderState == 4 then
+        if wasOrderGood == true then
+          numHearts = numHearts + 1
+        end
+        orderState = 1
+        wasOrderGood = false
+        currentSceneState = 1
+        showCupOnCounter = false
+        currentDog.destinationX = seating[dogInfo[currentDogNum].sitChoiceOneId].x
+        currentDog.destinationY = seating[dogInfo[currentDogNum].sitChoiceOneId].y
+        currentDog.isMoving = true
+        currentDog.showCupAtSeat = true
+        currentDog.visitedToday = true
+        table.insert(pastDogs, currentDog)
+        for k, v in pairs(drinkIngredients) do
+          v.isInDrink = false
+        end
+        --addHeartRating()
+        findNewCurrentDog()
+        --TODO - what else do i need to put here to restart the order?
+        --assign heart rating
+      end
+    end
+  end
+  
+  if key == "y" and not isrepeat then
+    if currentSceneState == 4 and orderState == 2 then
+      orderState = 3
+    end
+  end
+  
+  if key == "n" and not isrepeat then
+    if currentSceneState == 4 and orderState == 2 then
+      currentSceneState = 1
+    end
+  end
 
 end
 
+function findNewCurrentDog()
+  
+  currentDogNum = 2
+  currentDog = dogs[currentDogNum]
+  
+end
 
 
 
@@ -309,7 +442,35 @@ function love.mousereleased(x, y, button, istouch, presses)
       v.isInDrink = false
     end
     espressoFirst = true
+  elseif brewHover == "finish" then
+    currentSceneState = 1
+    showCupOnCounter = true
   end
+  
+end
+
+
+function testDrinks(requested)
+  
+  local numItems = 0
+  
+  for k, v in pairs(drinkIngredients) do
+    if v.isInDrink == true then
+      numItems = numItems + 1
+    end
+  end
+  
+  if numItems ~= requested.numIngredients then
+    return false
+  end
+
+  for k, v in pairs(requested.ingredients) do
+    if not drinkIngredients[v].isInDrink then
+      return false
+    end
+  end
+  
+  return true
   
 end
 

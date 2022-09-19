@@ -1,10 +1,11 @@
 M = {}
 M.__index = M
 
-function M.new(imgString, name)
+function M.new(id, imgString, name)
   
   local self = setmetatable({
       
+      id = num,
       name = name,
       isInDrink = false,
       img = gr.newImage(imgString),
@@ -52,7 +53,7 @@ elseif x > 98 and x < 205 and y > 350 and y < 750 then
     if drinkIngredients[2].isInDrink == true then
       gr.printf("two shots is plenty", 115, 948, 835, "center")
     elseif espressoFirst == false then
-      gr.printf("can't add espresso after other ingredients", 115, 948, 835, "center")
+      gr.printf("can't add espresso after other ingredients", 115, 948, 780, "center")
     else
       gr.printf("add espresso shot", 115, 948, 835, "center")
     end
@@ -96,6 +97,10 @@ elseif x > 98 and x < 205 and y > 350 and y < 750 then
     brewHover = "dump"
     
   --TODO: make finish icon
+  elseif x > 812 and x < 947 and y > 940 and y < 1020 then
+    gr.printf("finish drink", 115, 948, 835, "center")
+    love.mouse.setCursor(handCursor)
+    brewHover = "finish"
   
   else
     love.mouse.setCursor()
