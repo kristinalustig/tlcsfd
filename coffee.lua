@@ -34,8 +34,11 @@ function M.showBrewPromptsBasedOnMouseLocation()
   local x = love.mouse.getX()
   local y = love.mouse.getY()
   
-  gr.setColor(love.math.colorFromBytes(74, 55, 120))
+  gr.setFont(headsUpFont)
+  gr.printf("hit 'esc' to leave without finishing drink", 115, 908, 835, "center")
   gr.setFont(brewFont)
+  gr.setColor(love.math.colorFromBytes(74, 55, 120))
+  
   
   --whipped cream
   if x > 750 and x < 938 and y > 167 and y < 494 then
@@ -53,24 +56,24 @@ elseif x > 98 and x < 205 and y > 350 and y < 750 then
     if drinkIngredients[2].isInDrink == true then
       gr.printf("two shots is plenty", 115, 948, 835, "center")
     elseif espressoFirst == false then
-      gr.printf("can't add espresso after other ingredients", 115, 948, 780, "center")
+      gr.printf("can't add espresso after those ingredients", 115, 948, 780, "center")
     else
       gr.printf("add espresso shot", 115, 948, 835, "center")
     end
     love.mouse.setCursor(handCursor)
     brewHover = "espresso"
   
-  --caramel
-  elseif x > 210 and x < 370 and y > 110 and y < 279 then
-    gr.printf("add caramel syrup", 115, 948, 835, "center")
-    love.mouse.setCursor(handCursor)
-    brewHover = "espresso"
-  
   --vanilla
-  elseif x > 377 and x < 493 and y > 110 and y < 257 then
+  elseif x > 210 and x < 370 and y > 110 and y < 279 then
     gr.printf("add vanilla syrup", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
     brewHover = "vanilla"
+  
+  --caramel
+  elseif x > 377 and x < 493 and y > 110 and y < 257 then
+    gr.printf("add caramel syrup", 115, 948, 835, "center")
+    love.mouse.setCursor(handCursor)
+    brewHover = "caramel"
     
   --raspberry
   elseif x > 520 and x < 597 and y > 110 and y < 220 then
@@ -98,11 +101,21 @@ elseif x > 98 and x < 205 and y > 350 and y < 750 then
     
   --TODO: make finish icon
   elseif x > 812 and x < 947 and y > 940 and y < 1020 then
-    gr.printf("finish drink", 115, 948, 835, "center")
+    gr.printf("finish drink and put on counter", 115, 948, 835, "center")
     love.mouse.setCursor(handCursor)
     brewHover = "finish"
+    
+  elseif x > 180 and x < 300 and y > 780 and y < 856 then
+    if drinkIngredients[4].isInDrink then
+      gr.printf("create latte art", 115, 948, 835, "center")
+    else
+      gr.printf("can't make latte art without a latte!", 115, 948, 835, "center")
+    end
+    love.mouse.setCursor(handCursor)
+    brewHover = "art"
   
-  else
+else
+    
     love.mouse.setCursor()
     brewHover = nil
   end

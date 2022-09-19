@@ -15,7 +15,7 @@ function M.new(num)
       x = 480,
       y = 860,
       isMoving = true,
-      destinationX = 480,
+      destinationX = 450,
       destinationY = 400,
       speed = 5
       
@@ -74,6 +74,9 @@ function M.moveDog(self)
   --avoid the weird wiggles when it gets soooo close but not quite there
   if math.abs(self.destinationX - self.x) < 10 and math.abs(self.destinationY- self.y) < 10 then
       self.isMoving = false
+      if self == currentDog then
+        orderUp = true
+      end
       self.currFrameNum = 1
       return
     end

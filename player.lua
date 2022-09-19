@@ -79,10 +79,18 @@ end
 
 function M.isNearPastry(x, y)
   
-  if x > 450 and y >= 240 then
-    return true
+  if x > 456 and y >= 240 then
+    if x > 456 and x < 510 then
+      return 1  
+    elseif x >= 510 and x < 584 then
+      return 2
+    elseif x >= 584 and x < 664 then
+      return 3
+    elseif x >= 664 then
+      return 4
+    end
   else
-    return false
+    return nil
   end
   
 end
