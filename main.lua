@@ -34,7 +34,7 @@ function love.load()
   
   --daily summary details
   dayNum = 1
-  dayDogCount = 2
+  dayDogCount = 0
   dayHeartCount = 0
   dayDogSuccess = 0
   
@@ -351,10 +351,12 @@ function love.draw(t)
       gr.setFont(dogFont)
       if wasOrderGood then
         gr.printf(dogInfo[currentDogNum].positiveResponse, 334, 250, 580, "left")
-        gr.printf("Oh no, I'm sorry. I'll get it right next time.", 125, 500, 580, "left")
+        gr.setFont(brewFont)
+        gr.printf("Enjoy your treat! Good dog.", 125, 500, 580, "left")
       else
         gr.printf(dogInfo[currentDogNum].negativeResponse, 334, 250, 580, "left")
-        gr.printf("Enjoy your treat! Good dog.", 125, 500, 580, "left")
+        gr.setFont(brewFont)
+        gr.printf("Oh no, I'm sorry. I'll get it right next time.", 125, 500, 580, "left")
       end
       gr.setFont(headsUpFont)
       gr.printf("(Press ' F ' to continue)", 98, 660, 832, "center")
@@ -507,9 +509,11 @@ end
 function findNewCurrentDog()
   
   local foundDog = false
-  while foundDog == false do
+  local tries = 0
+  while foundDog == false and tries < 10 do
     local rand = math.random(2)
     if dogInfo[rand].visitedToday == false then
+      tries = tries + 1
       currentDogNum = rand
       currentDog = dogs["dog"..currentDogNum]
       dogInfo[currentDogNum].visitedToday = true
