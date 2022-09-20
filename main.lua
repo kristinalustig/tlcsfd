@@ -3,13 +3,27 @@ local P = require "player"
 local D = require "dog"
 local C = require "coffee"
 local GD = require "gameData"
+local push = require "push"
 
 function love.load()
+  
+  local gameWidth, gameHeight = 1032, 1032
+  local windowWidth, windowHeight = love.window.getDesktopDimensions()
+  if windowHeight >= 1032 then
+    windowWidth, windowHeight = 1032, 1032
+  else
+    windowWidth, windowHeight = 700, 700
+  end
+  
+  push:setupScreen(gameWidth, gameHeight, windowWidth, windowHeight, {
+      fullscreen = false,
+      resizable = false,
+      pixelperfect = true,
+      stretched = true})
   
   gr = love.graphics
   ph = love.physics
   key = love.keyboard
-  
   
   -- global variables
   globalTimer = 0
@@ -42,15 +56,36 @@ function love.load()
   mousex = 0
   mousey = 0
   
+  --fonts
+  testFont = gr.newFont(10)
+  orderSlipPrintFont = gr.newFont("/fonts/BreeSerif-Regular.ttf", 20) -- only for the serif text @ top of order
+  handwritingFont = gr.newFont("/fonts/Caveat-Medium.ttf", 25) -- only for order slip handwriting
+  menuHeaderFont = gr.newFont("/fonts/ArimaMadurai-Black.ttf", 35)
+  menuContentFont = gr.newFont("/fonts/Quicksand-Regular.ttf", 25)
+  hintFont = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 30) -- only for places where UI gives user instructions
+  hintFontSm = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 20) -- smaller instructions
+  hintFontXSm = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 14) -- even smaller instructions
+  overheadFont = gr.newFont("/fonts/Quicksand-Bold.ttf", 20) -- for E prompts
+  dogFont = gr.newFont(24) -- font for dogs convo text until I can get specific
+  dog1Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog2Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog3Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog4Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog5Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog6Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog7Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog8Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog9Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dog10Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  playerVoiceFont = gr.newFont("/fonts/Mali-Regular.ttf", 30) -- font for player's speech
+  dayFont = gr.newImageFont("/fonts/dayFont.png", "1234567") -- font for day counter
+  
   -- load static assets for main area
   background = gr.newImage("/assets/background.png")
   nightBackground = gr.newImage("/assets/nightBackground.png")
-  testFont = gr.newFont(10)
-  orderSlipFont = gr.newFont(20)
-  brewFont = gr.newFont("/fonts/GloriaHallelujah-Regular.ttf", 30)
-  headsUpFont = gr.newFont("/fonts/Sriracha-Regular.ttf", 20)
-  dogFont = gr.newFont("/fonts/FredokaOne-Regular.ttf", 30)
-  dayFont = gr.newImageFont("/fonts/dayFont.png", "1234567")
+  
+  
+  --animated background stuff
   mushRedImg = gr.newImage("/assets/mush1.png")
   mushSprite = {
     cadence = 200,
@@ -61,6 +96,27 @@ function love.load()
   mushSprite[2] = gr.newQuad(116, 0, 116, 68, mushRedImg)
   mushSprite[3] = gr.newQuad(232, 0, 116, 68, mushRedImg)
   mushSprite[4] = gr.newQuad(348, 0, 116, 68, mushRedImg)
+  mushWhiteImg = gr.newImage("/assets/mush2.png")
+  mushSprite2 = {
+    cadence = 140,
+    currentFrameNum = 1,
+    maxFrameNum = 4
+  }
+  mushSprite2[1] = gr.newQuad(0, 0, 56, 28, mushWhiteImg)
+  mushSprite2[2] = gr.newQuad(56, 0, 56, 28, mushWhiteImg)
+  mushSprite2[3] = gr.newQuad(112, 0, 56, 28, mushWhiteImg)
+  mushSprite2[4] = gr.newQuad(168, 0, 56, 28, mushWhiteImg)
+  pumpkinImg = gr.newImage("/assets/pumpkin.png")
+  pumpkin = {
+    cadence = 40,
+    currentFrameNum = 1,
+    maxFrameNum = 4
+  }
+  pumpkin[1] = gr.newQuad(0, 0, 68, 60, pumpkinImg)
+  pumpkin[2] = gr.newQuad(68, 0, 68, 60, pumpkinImg)
+  pumpkin[3] = gr.newQuad(136, 0, 68, 60, pumpkinImg)
+  pumpkin[4] = gr.newQuad(204, 0, 68, 60, pumpkinImg)
+  
   chatBackground = gr.newImage("/assets/chat-bg.png")
   finishedCoffee = gr.newImage("/assets/finishedCoffee.png")
   heartEmpty = gr.newImage("/assets/heart-empty.png")
@@ -119,7 +175,7 @@ function love.load()
   dayLabel = gr.newImage("/assets/ui/day-label.png")
   credits = gr.newImage("/assets/ui/credits.png")
   title = gr.newImage("/assets/ui/title.png")
-  keyPromptBrew = gr.newImage("/assets/ui/keyprompt-e.png")
+  keyPrompt = gr.newImage("/assets/ui/keyprompt-e.png")
   keyPromptBone = gr.newImage("/assets/ui/keyprompt-e-bone.png")
   keyPromptBrew = gr.newImage("/assets/ui/keyprompt-e-brew.png")
   keyPromptChat = gr.newImage("/assets/ui/keyprompt-e-chat.png")
@@ -158,6 +214,8 @@ function love.update(dt)
     
     --calculations for obj animations
     mushSprite.currentFrameNum = getCurrentObjFrame(mushSprite, globalTimer)
+    mushSprite2.currentFrameNum = getCurrentObjFrame(mushSprite2, globalTimer)
+    pumpkin.currentFrameNum = getCurrentObjFrame(pumpkin, globalTimer)
 
     
     --calculations for dog animations
@@ -179,11 +237,13 @@ function love.update(dt)
 end
 
 
-function love.draw(t)
+function love.draw()
+  
+  push:start()
   
   if globalSceneNum == 7 then
-    gr.draw(nightBackground)
-    gr.setFont(brewFont)
+    gr.draw(nightBackground, 0, 0)
+    gr.setFont(menuHeaderFont)
     gr.printf("End of day summary:", 0, 300, 946, "center")
     gr.printf("Dogs served: "..dayDogCount, 0, 400, 946, "center") 
     gr.printf("Hearts earned: "..dayHeartCount, 0, 450, 946, "center") 
@@ -194,17 +254,16 @@ function love.draw(t)
 
     if currentSceneState == 1 or currentSceneState == 4 then
       
-      gr.draw(background)
+      gr.draw(background, 0, 0)
       
       gr.draw(dayLabel, 100, 20)
-      gr.reset()
       gr.setFont(dayFont)
-      gr.printf(dayNum, 260, 20, 50, "left")
+      gr.printf(dayNum, 260, 24, 50, "left")
       for i=1, numHearts do
-        gr.draw(heartFull, 300 + (50*i), 20, 0, .5, .5)
+        gr.draw(heartFull, 300 + (58*i), 30)
       end
       for i=numHearts+1, 10 do
-        gr.draw(heartEmpty, 300 + (50*i), 20, 0, .5, .5)
+        gr.draw(heartEmpty, 300 + (58*i), 30)
       end
       
       
@@ -252,6 +311,8 @@ function love.draw(t)
       end
     
       gr.draw(mushRedImg, mushSprite[mushSprite.currentFrameNum], 710, 790)
+      gr.draw(mushWhiteImg, mushSprite2[mushSprite2.currentFrameNum], 265, 782)
+      gr.draw(pumpkinImg, pumpkin[pumpkin.currentFrameNum], 218, 324)
       
       gr.draw(currentDog.sheet, currentDog.frames[currentDog.currFrameNum], currentDog.x, currentDog.y)
       
@@ -279,31 +340,29 @@ function love.draw(t)
       
       
     elseif currentSceneState == 2 then
-      gr.draw(brewBackground)
+      gr.draw(brewBackground, 0, 0)
       gr.draw(dayLabel, 100, 20)
       gr.setFont(dayFont)
-      gr.printf(""..dayNum, 260, 20, 30, "left")
+      gr.printf(dayNum, 260, 24, 50, "left")
       for i=1, numHearts do
-        gr.draw(heartFull, 300 + (50*i), 20, 0, .5, .5)
+        gr.draw(heartFull, 300 + (58*i), 30)
       end
       for i=numHearts+1, 10 do
-        gr.draw(heartEmpty, 300 + (50*i), 20, 0, .5, .5)
+        gr.draw(heartEmpty, 300 + (58*i), 30)
       end
       
       gr.draw(orderSlip, 360, 708)
-      
-      gr.setFont(brewFont)
       gr.draw(emptyCup, 278, 250)
       
       --TODO: if there's an order up
       if orderUp == true then
-        gr.setFont(orderSlipFont)
-        gr.printf("Order Slip", 370, 718, 230, "center")
-        gr.setFont(brewFont)
+        gr.setFont(orderSlipPrintFont)
+        gr.setColor(love.math.colorFromBytes(158, 32, 129))
+        gr.printf("ORDER SLIP", 370, 718, 230, "center")
+        gr.setFont(handwritingFont)
         gr.setColor(0, 0, 0, 1)
         gr.printf("- "..coffeeDrinks[dogInfo[currentDogNum].favoriteDrinkId].name, 390, 750, 224, "left")
         gr.printf("- "..snacks[dogInfo[currentDogNum].pastryWanted].name, 390, 810, 224, "left")
-        gr.reset()
       else
         gr.printf("No orders right now", 380, 740, 224, "center")
       end
@@ -315,57 +374,64 @@ function love.draw(t)
       
     elseif currentSceneState == 3 then
       
-      gr.draw(menuBackground)
+      gr.draw(menuBackground, 0, 0)
       --TODO - create menu page
       
     end
     
     if currentSceneState == 4 then
       
-      gr.draw(chatBackground)
+      gr.draw(chatBackground, 0, 0)
       gr.draw(player.sheet, player.currImg, 760, 540)
-      gr.draw(dogs["dog1"].chatImg, 126, 280)
-      gr.setFont(dogFont)
-      gr.printf(dogInfo[currentDogNum].name, 120, 426, 176, "center")
-      gr.setFont(brewFont)
-      gr.printf("You", 738, 465, 180, "center")
+      if orderState >= 3 then
+        if wasOrderGood then
+          gr.draw(currentDog.chatSheet, currentDog.chatHappy, 126, 280)
+        else
+          gr.draw(currentDog.chatSheet, currentDog.chatSad, 126, 280)
+        end
+      else
+        gr.draw(currentDog.chatSheet, currentDog.chatHappy, 126, 280)
+      end
+      gr.setFont(hintFont)
+      gr.printf(dogInfo[currentDogNum].name, 120, 426, 172, "center")
+      gr.printf("You", 738, 470, 180, "center")
       
       --not started
       if orderState == 1 then
         gr.setFont(dogFont)
-        gr.printf(dogInfo[currentDogNum].hello, 334, 250, 580, "left")
-        gr.setFont(brewFont)
+        gr.printf(dogInfo[currentDogNum].hello, 316, 250, 598, "left")
+        gr.setFont(playerVoiceFont)
         gr.printf("Coming right up!", 125, 500, 580, "left")
-        gr.setFont(headsUpFont)
-        gr.printf("(Press ' F ' to continue)", 98, 660, 832, "center")
+        gr.setFont(hintFont)
+        gr.printf("(Press 'F' to continue)", 98, 660, 832, "center")
         
       --in progress  
     elseif orderState == 2 then
         gr.setFont(dogFont)
-        gr.printf(dogInfo[currentDogNum].finishedPrompt, 334, 250, 580, "left")
-        gr.setFont(headsUpFont)
-        gr.printf("' Y ' for yes, ' N ' for no", 98, 560, 832, "center")
+        gr.printf(dogInfo[currentDogNum].finishedPrompt, 316, 250, 598, "left")
+        gr.setFont(hintFont)
+        gr.printf("'Y' for yes, 'N' for no", 98, 560, 832, "center")
         
       --finished  
     elseif orderState == 3 then
       gr.setFont(dogFont)
       if wasOrderGood then
-        gr.printf(dogInfo[currentDogNum].positiveResponse, 334, 250, 580, "left")
-        gr.setFont(brewFont)
+        gr.printf(dogInfo[currentDogNum].positiveResponse, 316, 250, 598, "left")
+        gr.setFont(playerVoiceFont)
         gr.printf("Enjoy your treat! Good dog.", 125, 500, 580, "left")
       else
-        gr.printf(dogInfo[currentDogNum].negativeResponse, 334, 250, 580, "left")
-        gr.setFont(brewFont)
+        gr.printf(dogInfo[currentDogNum].negativeResponse, 316, 250, 598, "left")
+        gr.setFont(playerVoiceFont)
         gr.printf("Oh no, I'm sorry. I'll get it right next time.", 125, 500, 580, "left")
       end
-      gr.setFont(headsUpFont)
-      gr.printf("(Press ' F ' to continue)", 98, 660, 832, "center")
+      gr.setFont(hintFont)
+      gr.printf("(Press 'F' to continue)", 98, 660, 832, "center")
       --farewell  
     elseif orderState == 4 then  
         gr.setFont(dogFont)
-        gr.printf(dogInfo[currentDogNum].staying, 334, 250, 580, "left")
-        gr.setFont(headsUpFont)
-        gr.printf("(Press ' F ' to continue)", 98, 660, 832, "center")
+        gr.printf(dogInfo[currentDogNum].staying, 316, 250, 598, "left")
+        gr.setFont(hintFont)
+        gr.printf("(Press 'F' to continue)", 98, 660, 832, "center")
       end
       
     end
@@ -373,6 +439,8 @@ function love.draw(t)
     gr.setFont(testFont)
     gr.printf(""..mousex..", "..mousey, mousex, mousey-10, 200, "left")
   end
+
+  push:finish()
 
 end
 
@@ -559,27 +627,49 @@ function showOverheadPromptsBasedOnLocation()
   local pastry = P.isNearPastry(x, y)
   local scaling = .7
   
+  gr.setFont(overheadFont)
+  
   if P.isNearBrewTable(x, y) == true then
-    gr.draw(keyPromptBrew, x+20, y-20, 0, scaling, scaling)
+    gr.draw(keyPrompt, x+20, y-20, 0, scaling, scaling)
+    gr.setColor(love.math.colorFromBytes(74, 55, 120))
+    gr.printf("BREW", x+46, y-21, 100, "left")
   elseif P.isNearMenu(x, y) == true then
-    gr.draw(keyPromptMenu, x+20, y-20, 0, scaling, scaling)
+    gr.draw(keyPrompt, x+20, y-20, 0, scaling, scaling)
+    gr.setColor(love.math.colorFromBytes(74, 55, 120))
+    gr.printf("MENU", x+46, y-21, 100, "left")
   elseif P.isNearDog(x, y) == true then
     if hasPastry then
-      gr.draw(keyPromptDrop, x+20, y-20, 0, scaling, scaling)
+      gr.draw(keyPrompt, x+20, y-20, 0, scaling, scaling)
+      gr.setColor(love.math.colorFromBytes(74, 55, 120))
+      gr.printf("DROP", x+46, y-21, 100, "left")
     else
-      gr.draw(keyPromptChat, x+20, y-20, 0, scaling, scaling)
+      gr.draw(keyPrompt, x+20, y-20, 0, scaling, scaling)
+      gr.setColor(love.math.colorFromBytes(74, 55, 120))
+      gr.printf("CHAT", x+46, y-21, 100, "left")
     end
   elseif pastry then
+    
     if pastry == 1 then
       gr.draw(keyPromptBone, x+20, y-20, 0, scaling, scaling)
+      gr.setColor(love.math.colorFromBytes(74, 55, 120))
+      gr.printf("TAKE", x+46, y-21, 100, "left")
     elseif pastry == 2 then
       gr.draw(keyPromptDonut, x+20, y-20, 0, scaling, scaling)
+      gr.setColor(love.math.colorFromBytes(74, 55, 120))
+      gr.printf("TAKE", x+46, y-21, 100, "left")
     elseif pastry == 3 then
       gr.draw(keyPromptCookie, x+20, y-20, 0, scaling, scaling)
+      gr.setColor(love.math.colorFromBytes(74, 55, 120))
+      gr.printf("TAKE", x+46, y-21, 100, "left")
     elseif pastry == 4 then
       gr.draw(keyPromptEclair, x+20, y-20, 0, scaling, scaling)
+      gr.setColor(love.math.colorFromBytes(74, 55, 120))
+      gr.printf("TAKE", x+46, y-21, 100, "left")
     end
+    
   end
+  
+  gr.setColor(1, 1, 1)
   
 end
 
@@ -673,7 +763,9 @@ function testOrder(requested, pastry)
   
 end
 
-
+function love.resize(w, h)
+  push:resize(w, h)
+end
 
 
 
@@ -686,6 +778,8 @@ function showCoords(obj)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
+  
+  local x, y = push:toGame(love.mouse.getX(), love.mouse.getY())
   
   mousex = x
   mousey = y

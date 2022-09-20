@@ -1,3 +1,5 @@
+local push = require "push"
+
 M = {}
 M.__index = M
 
@@ -20,6 +22,8 @@ end
 
 function M.showDrinkIngredientsIfSelected()
   
+  gr.setColor(1, 1, 1)
+  
   for k, v in pairs(drinkIngredients) do
     if v.isInDrink == true then
       gr.draw(v.img, v.x, v.y)
@@ -31,12 +35,11 @@ end
 
 function M.showBrewPromptsBasedOnMouseLocation()
   
-  local x = love.mouse.getX()
-  local y = love.mouse.getY()
+  local x, y = push:toGame(love.mouse.getX(), love.mouse.getY())
   
-  gr.setFont(headsUpFont)
-  gr.printf("hit 'esc' to leave without finishing drink", 115, 908, 835, "center")
-  gr.setFont(brewFont)
+  gr.setFont(hintFontXSm)
+  gr.printf("(hit 'esc' to leave)", 814, 926, 134, "center")
+  gr.setFont(hintFont)
   gr.setColor(love.math.colorFromBytes(74, 55, 120))
   
   
@@ -105,7 +108,7 @@ elseif x > 98 and x < 205 and y > 350 and y < 750 then
     love.mouse.setCursor(handCursor)
     brewHover = "finish"
     
-  elseif x > 180 and x < 300 and y > 780 and y < 856 then
+  elseif x > 170 and x < 306 and y > 791 and y < 885 then
     if drinkIngredients[4].isInDrink then
       gr.printf("create latte art", 115, 948, 835, "center")
     else
@@ -120,7 +123,7 @@ else
     brewHover = nil
   end
   
-  gr.reset()
+  gr.setColor(1, 1, 1)
   
 end
 

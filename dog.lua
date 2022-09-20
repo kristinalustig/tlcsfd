@@ -8,7 +8,7 @@ function M.new(num)
       dogNum = num,
       sheet = gr.newImage("/assets/dogs/dog" .. num .. ".png"),
       name = getName(num),
-      chatImg = gr.newImage("/assets/dogs/dog" .. num .. "-chat.png"),
+      chatSheet = gr.newImage("/assets/dogs/dog" .. num .. "-chat.png"),
       isInScene = false,
       isFacingUp = true,
       frames = {},
@@ -30,6 +30,9 @@ function M.new(num)
   self.frames[7] = gr.newQuad(128, 64, 64, 64, self.sheet)
   self.frames[8] = gr.newQuad(192, 64, 64, 64, self.sheet)
   self.currFrameNum = 1
+  
+  self.chatHappy = gr.newQuad(0, 0, 160, 136, self.chatSheet)
+  self.chatSad = gr.newQuad(160, 0, 160, 136, self.chatSheet)
   
   return self
   

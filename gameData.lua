@@ -149,7 +149,7 @@ function M.initialize()
     
     name = "Ginger",
     favoriteDrinkId = 2,
-    hello = "Good morrow, madam. 'Tis I, Miss Ginger. Would you be everrrrr so kind and fetch me a raspberry milk? Perhaps with a dainty little cookie. I do love cookies so.",
+    hello = "Good morrow, madam. 'Tis I, Miss Ginger. Would you be everrrRRr so kind and fetch me a raspberry milk? Perhaps with a dainty little cookie. I do love cookies so.",
     helloLate = "So good to see you again, madam. I'll have my usual, please, if you could.",
     finishedPrompt = "Have you completed my orderrrruff? I'm starting to get hungrrRRRRy, I can't contain myself!",
     positiveResponse = "Heavens, what a treat! I must have been such a good girl to get such a treat.",
@@ -240,7 +240,7 @@ function M.initialize()
     sitChoiceTwoId = 4,
     showCupAtSeat = false,
     visitedToday = false,
-    pastryWanted = 2,
+    pastryWanted = 4,
     visitedTimes = 0
     
   }
@@ -280,7 +280,7 @@ function M.initialize()
     sitChoiceTwoId = 5,
     showCupAtSeat = false,
     visitedToday = false,
-    pastryWanted = 2,
+    pastryWanted = 1,
     visitedTimes = 0
     
   }
@@ -289,18 +289,18 @@ function M.initialize()
     
     name = "Banana",
     favoriteDrinkId = 9,
-    hello = "",
-    helloLate = "",
-    finishedPrompt = "",
-    positiveResponse = "",
-    negativeResponse = "",
-    staying = "",
-    farewell = "",
-    sitChoiceOneId = 1,
-    sitChoiceTwoId = 2,
+    hello = "Baaaaaark hello! I'm Banana. I am not banana color I just love bananas. I also love BONES! Bones. Barknana. Beautiful. Can I have a bone beverage and bite?",
+    helloLate = "Bark bark bark, Barknana here again! Oops, Banana. Barkin' usual, bestie?!",
+    finishedPrompt = "Didja bring me the drink and snack JUST for Banana??",
+    positiveResponse = "Bagnificent! Barvelous! Bantastic! Banana's beloved beverage and bite.",
+    negativeResponse = "Banana feels bad because bwrong bev and bite.",
+    staying = "Basking in the boffee shop for a bit.",
+    farewell = "Banana has to bounce. Bye-bye, bark!",
+    sitChoiceOneId = 2,
+    sitChoiceTwoId = 5,
     showCupAtSeat = false,
     visitedToday = false,
-    pastryWanted = 2,
+    pastryWanted = 1,
     visitedTimes = 0
     
   }
@@ -309,18 +309,18 @@ function M.initialize()
     
     name = "Rufus",
     favoriteDrinkId = 10,
-    hello = "",
-    helloLate = "",
-    finishedPrompt = "",
-    positiveResponse = "",
-    negativeResponse = "",
-    staying = "",
-    farewell = "",
-    sitChoiceOneId = 1,
-    sitChoiceTwoId = 2,
+    hello = "Greetings and salutations. Did you know that 200 degrees Fahrenheit is the optimal temperature for brewing coffee? I hope so. I'd like your best coffee, please. 'Bury the Vanilla,' or something. And a cookie as well.",
+    helloLate = "Greetings! You know, it's so tough to do math when there are no calculators built for paws. Cheer me up with your usual?",
+    finishedPrompt = "Did you brew it at its optimal temperature? Is it prepared?",
+    positiveResponse = "Ahhh, satisfaction. 200 degrees exactly. Marvelous work.",
+    negativeResponse = "Something is off. Did you make the coffee at 201 degrees instead? I can tell.",
+    staying = "I shall sit and observe further workings of this coffee shop.",
+    farewell = "I must go work on my PhD. It's on alternate universes. I believe there are some universes in which dogs cannot talk, let alone do math? Preposterous.",
+    sitChoiceOneId = 3,
+    sitChoiceTwoId = 1,
     showCupAtSeat = false,
     visitedToday = false,
-    pastryWanted = 2,
+    pastryWanted = 3,
     visitedTimes = 0
     
   }
