@@ -17,7 +17,8 @@ function M.new(num)
       isMoving = true,
       destinationX = 450,
       destinationY = 400,
-      speed = 5
+      speed = 5,
+      isStayingToday = false
       
     }, M)
 

@@ -31,11 +31,11 @@ function M.initialize()
   coffeeDrinks[3] = {
     
     name = "Super Peppy Puppy Latte",
-    description = "So! Pumped! For this double-shot latte with milk and whipped cream.",
-    numIngredients = 2,
+    description = "So! Pumped! For this double-shot latte (with milk) and whipped cream.",
+    numIngredients = 4,
     ingredients = {
     
-      3, 10
+      1, 2, 4, 6
       
     }
   }
@@ -43,11 +43,11 @@ function M.initialize()
   coffeeDrinks[4] = {
     
     name = "Puppacino",
-    description = "Classic with a twist. Whipped cream with rawhide syrup.",
+    description = "Classic with a twist. Just whipped cream with rawhide syrup.",
     numIngredients = 2,
     ingredients = {
     
-      3, 10
+      6, 11
       
     }
   }
@@ -59,19 +59,19 @@ function M.initialize()
     numIngredients = 2,
     ingredients = {
     
-      3, 10
+      1, 9
       
     }
   }
   
   coffeeDrinks[6] = {
     
-    name = "Fetch Me A Latte",
-    description = "Two shots with milk, beautiful latte art, and sprinkles. Go fetch!",
-    numIngredients = 2,
+    name = "Fetch It For Me Latte",
+    description = "A two shot latte with beautiful latte art and sprinkles. Go fetch!",
+    numIngredients = 5,
     ingredients = {
     
-      3, 10
+      1, 2, 4, 5, 7
       
     }
   }
@@ -79,11 +79,11 @@ function M.initialize()
   coffeeDrinks[7] = {
     
     name = "Sweetie Sweet Latte",
-    description = "One shot espresso, milk, and every syrup, with lovely art. Only for the sweetest of pups.",
-    numIngredients = 2,
+    description = "One shot latte with every syrup and lovely art. Only for the sweetest of pups.",
+    numIngredients = 7,
     ingredients = {
     
-      3, 10
+      1, 4, 5, 8, 9, 10, 11
       
     }
   }
@@ -95,7 +95,7 @@ function M.initialize()
     numIngredients = 2,
     ingredients = {
     
-      3, 10
+      6, 7
       
     }
   }
@@ -107,7 +107,7 @@ function M.initialize()
     numIngredients = 2,
     ingredients = {
     
-      3, 10
+      3, 11
       
     }
   }
@@ -119,7 +119,7 @@ function M.initialize()
     numIngredients = 2,
     ingredients = {
     
-      3, 10
+      1, 6, 8
       
     }
   }
@@ -138,10 +138,10 @@ function M.initialize()
     staying = "I think I'll grrrrrrab a table and slobber up my drink!",
     farewell = "I gotta go pee on a tree now!! Thank you, bark bark!",
     sitChoiceOneId = 1,
-    sitChoiceTwoId = 2,
     showCupAtSeat = false,
     visitedToday = false,
-    pastryWanted = 2
+    pastryWanted = 2,
+    visitedTimes = 0
     
   }
   
@@ -156,8 +156,7 @@ function M.initialize()
     negativeResponse = "My word, this isn't correct at all. Grrrr. I guess it shall have to do.",
     staying = "I suppose I'll stay here and nibble it all down.",
     farewell = "Must run, see you again soon darrRRRling, toodle-oo!",
-    sitChoiceOneId = 1,
-    sitChoiceTwoId = 2,
+    sitChoiceOneId = 9,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 3,
@@ -176,8 +175,7 @@ function M.initialize()
     negativeResponse = "Are you a secret agent working for the cats, determined to undermine the work that the DIA does? I hope this doesn't mess up my stakeout today.",
     staying = "",
     farewell = "I have to hurry, time waits for no dog!",
-    sitChoiceOneId = nil,
-    sitChoiceTwoId = nil,
+    sitChoiceOneId = 9,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 3,
@@ -196,8 +194,7 @@ function M.initialize()
     negativeResponse = "",
     staying = "",
     farewell = "Gotta go!",
-    sitChoiceOneId = nil,
-    sitChoiceTwoId = nil,
+    sitChoiceOneId = 9,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 1,
@@ -217,7 +214,6 @@ function M.initialize()
     staying = "Time to run in circles around your table while I snack. And while keep an eye on that RABBIT.",
     farewell = "",
     sitChoiceOneId = 3,
-    sitChoiceTwoId = 2,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 2,
@@ -237,7 +233,6 @@ function M.initialize()
     staying = "Think I'll sniff around here for a spell. Got any good slippers for chewin'? Heh.",
     farewell = "Gotta skedaddle. Bark ya later.",
     sitChoiceOneId = 5,
-    sitChoiceTwoId = 4,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 4,
@@ -257,7 +252,6 @@ function M.initialize()
     staying = "The lighting over there is just perfect, I think I'll stay. Don't forget to follow me on DogChat!",
     farewell = "Oh my god, *THE* Fuzzy Fernanda just liked my photo! Gotta run and tell *everyone* I've ever met! Yip yiiiiip!",
     sitChoiceOneId = 4,
-    sitChoiceTwoId = 3,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 2,
@@ -277,7 +271,6 @@ function M.initialize()
     staying = "REX SIT COUCH NOW. REX NOT ACCIDENT EAT CUSHION. REX PROMISE. BORK.",
     farewell = "REX CHASE KIDS ON BIKES NOW. BORK BYE!",
     sitChoiceOneId = 4,
-    sitChoiceTwoId = 5,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 1,
@@ -297,7 +290,6 @@ function M.initialize()
     staying = "Basking in the boffee shop for a bit.",
     farewell = "Banana has to bounce. Bye-bye, bark!",
     sitChoiceOneId = 2,
-    sitChoiceTwoId = 5,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 1,
@@ -317,7 +309,6 @@ function M.initialize()
     staying = "I shall sit and observe further workings of this coffee shop.",
     farewell = "I must go work on my PhD. It's on alternate universes. I believe there are some universes in which dogs cannot talk, let alone do math? Preposterous.",
     sitChoiceOneId = 3,
-    sitChoiceTwoId = 1,
     showCupAtSeat = false,
     visitedToday = false,
     pastryWanted = 3,
@@ -334,9 +325,10 @@ function M.initialize()
   {
     
     x = 260,
-    y = 495,
+    y = 485,
     cupX = 270,
-    cupY = 510
+    cupY = 510,
+    occupied = false
     
   }
   
@@ -344,10 +336,11 @@ function M.initialize()
   seating[2] = 
   {
     
-    x = 260,
-    y = 495,
+    x = 282,
+    y = 575,
     cupX = 270,
-    cupY = 510
+    cupY = 550,
+    occupied = false
     
   }
   
@@ -355,10 +348,11 @@ function M.initialize()
   seating[3] = 
   {
     
-    x = 260,
-    y = 495,
-    cupX = 270,
-    cupY = 510
+    x = 648,
+    y = 445,
+    cupX = 630,
+    cupY = 410,
+    occupied = false
     
   }
   
@@ -366,10 +360,11 @@ function M.initialize()
   seating[4] = 
   {
     
-    x = 260,
-    y = 495,
-    cupX = 270,
-    cupY = 510
+    x = 625,
+    y = 575,
+    cupX = 760,
+    cupY = 506,
+    occupied = false
     
   }
   
@@ -377,10 +372,23 @@ function M.initialize()
   seating[5] = 
   {
     
-    x = 260,
-    y = 495,
-    cupX = 270,
-    cupY = 510
+    x = 702,
+    y = 580,
+    cupX = 790,
+    cupY = 518,
+    occupied = false
+    
+  }
+  
+   --leaving
+  seating[9] = 
+  {
+    
+    x = 450,
+    y = 1200,
+    cupX = 1200,
+    cupY = 1200,
+    occupied = false
     
   }
   

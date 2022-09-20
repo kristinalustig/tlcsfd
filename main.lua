@@ -7,6 +7,8 @@ local push = require "push"
 
 function love.load()
   
+  math.randomseed(os.time())
+  
   local gameWidth, gameHeight = 1032, 1032
   local windowWidth, windowHeight = love.window.getDesktopDimensions()
   if windowHeight >= 1032 then
@@ -27,7 +29,7 @@ function love.load()
   
   -- global variables
   globalTimer = 0
-  globalSceneNum = 1
+  globalSceneNum = 6
   currentSceneState = 1
   doorOpen = false
   handCursor = love.mouse.getSystemCursor("hand")
@@ -41,7 +43,7 @@ function love.load()
   showCupOnCounter = false
   pastDogs = {}
   possibleHeartNum = 10
-  numHearts = 1
+  numHearts = 2
   orderUp = false
   pastryOnCounter = nil
   hasPastry = nil
@@ -60,23 +62,26 @@ function love.load()
   testFont = gr.newFont(10)
   orderSlipPrintFont = gr.newFont("/fonts/BreeSerif-Regular.ttf", 20) -- only for the serif text @ top of order
   handwritingFont = gr.newFont("/fonts/Caveat-Medium.ttf", 25) -- only for order slip handwriting
-  menuHeaderFont = gr.newFont("/fonts/ArimaMadurai-Black.ttf", 35)
-  menuContentFont = gr.newFont("/fonts/Quicksand-Regular.ttf", 25)
+  menuHeaderFont = gr.newFont("/fonts/ArimaMadurai-Black.ttf", 30)
+  introHeaderFont = gr.newFont("/fonts/Quicksand-Bold.ttf", 40)
+  introContentFont = gr.newFont("/fonts/Mali-Regular.ttf", 25)
+  menuContentFont = gr.newFont("/fonts/Quicksand-Regular.ttf", 20)
   hintFont = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 30) -- only for places where UI gives user instructions
   hintFontSm = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 20) -- smaller instructions
   hintFontXSm = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 14) -- even smaller instructions
   overheadFont = gr.newFont("/fonts/Quicksand-Bold.ttf", 20) -- for E prompts
-  dogFont = gr.newFont(24) -- font for dogs convo text until I can get specific
-  dog1Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog2Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog3Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog4Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog5Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog6Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog7Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog8Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog9Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
-  dog10Font = gr.newFont("/fonts/Quicksand-Regular.ttf", 30)
+  dogFontSize = 24
+  dogFonts = {}
+  dogFonts[1] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[2] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[3] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[4] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[5] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[6] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[7] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[8] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[9] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[10] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
   playerVoiceFont = gr.newFont("/fonts/Mali-Regular.ttf", 30) -- font for player's speech
   dayFont = gr.newImageFont("/fonts/dayFont.png", "1234567") -- font for day counter
   
@@ -168,22 +173,29 @@ function love.load()
     dog3 = D.new(3),
     dog4 = D.new(4),
     dog5 = D.new(5),
-    dog6 = D.new(6)
+    dog6 = D.new(6),
+    dog7 = D.new(7),
+    dog8 = D.new(8),
+    dog9 = D.new(9),
+    dog10 = D.new(10)
   }
   
   -- load ui
   dayLabel = gr.newImage("/assets/ui/day-label.png")
   credits = gr.newImage("/assets/ui/credits.png")
   title = gr.newImage("/assets/ui/title.png")
+  created = gr.newImage("/assets/ui/createdcard.png")
+  storySoFar = gr.newImage("/assets/ui/storysofar.png")
+  directions = gr.newImage("/assets/ui/directions.png")
+  gameOverNeutral = gr.newImage("/assets/ui/gameoverneutral.png")
+  gameOverLoss = gr.newImage("/assets/ui/gameoverloss.png")
+  gameOverWin = gr.newImage("/assets/ui/gameoverwin.png")
+  
   keyPrompt = gr.newImage("/assets/ui/keyprompt-e.png")
   keyPromptBone = gr.newImage("/assets/ui/keyprompt-e-bone.png")
-  keyPromptBrew = gr.newImage("/assets/ui/keyprompt-e-brew.png")
-  keyPromptChat = gr.newImage("/assets/ui/keyprompt-e-chat.png")
-  keyPromptMenu = gr.newImage("/assets/ui/keyprompt-e-menu.png")
   keyPromptEclair = gr.newImage("/assets/ui/keyprompt-e-eclair.png")
   keyPromptDonut = gr.newImage("/assets/ui/keyprompt-e-donut.png")
   keyPromptCookie = gr.newImage("/assets/ui/keyprompt-e-cookie.png")
-  keyPromptDrop = gr.newImage("/assets/ui/keyprompt-e-drop.png")
   
   GD.initialize()
   
@@ -194,7 +206,7 @@ function love.update(dt)
   
   --the end
   if numHearts == possibleHeartNum then
-    globalSceneNum = 4
+    globalSceneNum = 8
   elseif numHearts < 0 then
     globalSceneNum = 5
   elseif dayNum == 8 then
@@ -202,11 +214,12 @@ function love.update(dt)
   end
   
   if currentDogNum == 0 then
+    todaysDogLimit = math.random(2, 4)
     findNewCurrentDog()
     dayDogCount = dayDogCount + 1
   end
   
-  if dayDogCount == 4 then
+  if dayDogCount == todaysDogLimit and numHearts >= 0 then
     globalSceneNum = 7
   else
   
@@ -241,7 +254,111 @@ function love.draw()
   
   push:start()
   
-  if globalSceneNum == 7 then
+  --------INTRO CREDIT PAGE 1
+  if globalSceneNum == 10 then
+    --title page
+    gr.draw(title, 0, 0)
+    gr.setFont(hintFont)
+    gr.printf("Press any key to continue", 0, 972, 1032, "center")
+    
+  --------INTRO CREDIT PAGE 2
+  elseif globalSceneNum == 11 then
+    --by kristina
+    gr.draw(credits, 0, 0)
+    gr.printf("Press any key to continue", 0, 972, 1032, "center")
+  
+  --------INTRO CREDIT PAGE 3
+  elseif globalSceneNum == 12 then
+    --created for jam
+     gr.draw(created, 0, 0)
+     gr.printf("Press any key to continue", 0, 972, 1032, "center")
+  
+  ---------INTRO CREDIT PAGE 4
+  elseif globalSceneNum == 13 then
+    --set the scene
+    gr.draw(storySoFar, 0, 0)
+    gr.setFont(introHeaderFont)
+    gr.printf("This is you. Hello!", 340, 240, 500, "left")
+    gr.setFont(introContentFont)
+    gr.printf("Congrats! After saving for years, you've finally gone and opened up your own coffee shop for dogs. They said you couldn't do it, but here you are! Great work.", 100, 400, 800, "left")
+    
+    gr.printf("Your main goal right now is to get to know your customers. Learn their orders, make them correctly, and you could become an institution in this town. You can do it! I believe in you!", 100, 550, 800, "left")
+    
+    gr.setFont(hintFont)
+    gr.setColor(1, 1, 1)
+    gr.printf("Press any key to continue", 0, 972, 1032, "center")
+    
+  --------INTRO CREDIT PAGE 5
+  elseif globalSceneNum == 14 then
+    --instructions
+    gr.draw(directions, 0, 0)
+    
+    gr.setFont(introHeaderFont)
+    gr.printf("How to play:", 0, 200, 1032, "center")
+    gr.setFont(hintFont)
+    gr.printf("- Control your avatar with  W A S D", 100, 300, 800, "left")
+    gr.printf("- Interact with objects by following on-screen prompts", 100, 360, 800, "left")
+    gr.printf("- The only time you'll use your mouse is while you're brewing coffee.", 100, 420, 800, "left")
+    gr.printf("Max out your heart-o-meter by the end of one week. If the heart-o-meter drops below zero, game over.", 100, 580, 800, "left")
+    
+    gr.printf("I bet there's already a dog waiting for coffee. GOOD LUCK!", 0, 700, 1032, "center")
+    
+    gr.setFont(hintFont)
+    gr.setColor(1, 1, 1)
+    gr.printf("Press any key to continue", 0, 972, 1032, "center")
+  
+  ---------HELP PAGE
+  elseif globalSceneNum == 99 then
+    gr.draw(directions, 0, 0)
+    gr.setFont(introHeaderFont)
+    gr.printf("How to play:", 0, 200, 1032, "center")
+    gr.setFont(hintFont)
+    gr.printf("- Control your avatar with  W A S D", 100, 300, 800, "left")
+    gr.printf("- Interact with objects by following on-screen prompts", 100, 360, 800, "left")
+    gr.printf("- The only time you'll use your mouse is while you're brewing coffee.", 100, 420, 800, "left")
+    gr.printf("Max out your heart-o-meter by the end of one week. If the heart-o-meter drops below zero, game over.", 100, 580, 800, "left")
+    
+    gr.setFont(hintFont)
+    gr.setColor(1, 1, 1)
+    gr.printf("Press any key to continue", 0, 972, 1032, "center")
+  
+  -----EARLY GAME OVER
+  elseif globalSceneNum == 5 then
+    --ran outta hearts
+    gr.draw(gameOverLoss, 0, 0)
+    gr.setFont(menuHeaderFont)
+    gr.printf("You ran out of hearts! It's okay, your dog friends love you anyway. Maybe you could give the shop another try someday. If you want to play again to get a different ending, please close and reopen the game.", 100, 440, 800, "center")
+    gr.setFont(menuContentFont)
+    gr.printf("Thank you so much for playing my game, I spent a lot of time on it! All art, music, and code made by me, Kristina. Sound effects from FreeSound.org, please find the extended credits on this game's itch.io page. Have a lovely day!", 100, 700, 800, "center")
+    
+  -----EARLY GAME OVER - WIN!
+  elseif globalSceneNum == 8 then
+      --maxed out hearts
+    gr.draw(gameOverWin, 0, 0)
+    gr.setColor(love.math.colorFromBytes(74, 55, 120))
+    gr.setFont(menuHeaderFont)
+    gr.printf("In less than a week's time, you won the hearts and minds of the neighborhood pups. They love you and are so proud of you. Wonderful work. If you want to play again to get a different ending, please close and reopen the game.", 100, 340, 800, "center")
+    gr.setFont(menuContentFont)
+    gr.printf("Thank you so much for playing my game, I spent a lot of time on it! All art, music, and code made by me, Kristina. Sound effects from FreeSound.org, please find the extended credits on this game's itch.io page. Have a lovely day!", 100, 600, 800, "center")
+  
+  -----------GAME OVER - NEUTRAL!
+  elseif globalSceneNum == 6 then
+    --finished the week
+    gr.draw(gameOverNeutral, 0, 0)
+    for i=1, numHearts do
+        gr.draw(heartFull, 150 + (58*i), 300)
+      end
+      for i=numHearts+1, 10 do
+        gr.draw(heartEmpty, 150 + (58*i), 300)
+      end
+    gr.setFont(menuHeaderFont)
+    gr.printf("You made it an entire week! Great work - you're well on your way to winning over every pup in town. If you want to play again to get a different ending, please close and reopen the game.", 100, 440, 800, "center")
+    gr.setFont(menuContentFont)
+    gr.printf("Thank you so much for playing my game, I spent a lot of time on it! All art, music, and code made by me, Kristina. Sound effects from FreeSound.org, please find the extended credits on this game's itch.io page. Have a lovely day!", 100, 700, 800, "center")
+  
+  
+  -------END OF DAY
+  elseif globalSceneNum == 7 then
     gr.draw(nightBackground, 0, 0)
     gr.setFont(menuHeaderFont)
     gr.printf("End of day summary:", 0, 300, 946, "center")
@@ -250,6 +367,8 @@ function love.draw()
     gr.printf("Slobber marks cleaned off tables: 17", 0, 500, 946, "center")
     gr.printf("Press 'T' to start tomorrow!", 0, 600, 946, "center")
   
+  
+  -----CAFE
   elseif globalSceneNum == 1 then
 
     if currentSceneState == 1 or currentSceneState == 4 then
@@ -317,27 +436,38 @@ function love.draw()
       gr.draw(currentDog.sheet, currentDog.frames[currentDog.currFrameNum], currentDog.x, currentDog.y)
       
       for k, v in pairs(pastDogs) do
-        gr.draw(v.sheet, v.frames[v.currFrameNum], v.x, v.y)
+        if dogInfo[v.dogNum].sitChoiceOneId ~=2 and dogInfo[v.dogNum].sitChoiceOneId ~=3 then
+          gr.draw(v.sheet, v.frames[v.currFrameNum], v.x, v.y)
+        end
       end
-      
-    
-      showCoords(player) --TODO remove after testing
     
       showOverheadPromptsBasedOnLocation()
+      
+      for k, v in pairs(pastDogs) do
+        if dogInfo[v.dogNum].showCupAtSeat == true and dogInfo[v.dogNum].sitChoiceOneId ~=2 then
+          gr.draw(finishedCoffee, seating[dogInfo[v.dogNum].sitChoiceOneId].cupX, seating[dogInfo[v.dogNum].sitChoiceOneId].cupY)
+        end
+      end
       
       gr.draw(tablePurpleImg, 240, 510)
       gr.draw(tableGreenImg, 600, 400)
       
-      if showCupOnCounter == true then
-        gr.draw(finishedCoffee, 430, 360)
+      for k, v in pairs(pastDogs) do
+        if dogInfo[v.dogNum].sitChoiceOneId ==2 or dogInfo[v.dogNum].sitChoiceOneId ==3 then
+          gr.draw(v.sheet, v.frames[v.currFrameNum], v.x, v.y)
+        end
       end
       
       for k, v in pairs(pastDogs) do
-      if v.showCupAtSeat == true then
-        gr.draw(finishedCoffee, seating[dogInfo[v.dogNum].sitChoiceOneId].cupX, seating[dogInfo[v.dogNum].sitChoiceOneId].cupY)
+        if dogInfo[v.dogNum].showCupAtSeat == true then
+          gr.draw(finishedCoffee, seating[dogInfo[v.dogNum].sitChoiceOneId].cupX, seating[dogInfo[v.dogNum].sitChoiceOneId].cupY)
+        end
       end
-      end
+    
       
+      if showCupOnCounter == true then
+        gr.draw(finishedCoffee, 430, 360)
+      end
       
     elseif currentSceneState == 2 then
       gr.draw(brewBackground, 0, 0)
@@ -361,8 +491,12 @@ function love.draw()
         gr.printf("ORDER SLIP", 370, 718, 230, "center")
         gr.setFont(handwritingFont)
         gr.setColor(0, 0, 0, 1)
-        gr.printf("- "..coffeeDrinks[dogInfo[currentDogNum].favoriteDrinkId].name, 390, 750, 224, "left")
-        gr.printf("- "..snacks[dogInfo[currentDogNum].pastryWanted].name, 390, 810, 224, "left")
+        if dogInfo[currentDogNum].visitedTimes <= 2 then
+          gr.printf("- "..coffeeDrinks[dogInfo[currentDogNum].favoriteDrinkId].name, 390, 750, 224, "left")
+          gr.printf("- "..snacks[dogInfo[currentDogNum].pastryWanted].name, 390, 810, 224, "left")
+        else
+          gr.printf("...?", 390, 750, 224, "left")
+        end
       else
         gr.printf("No orders right now", 380, 740, 224, "center")
       end
@@ -375,11 +509,37 @@ function love.draw()
     elseif currentSceneState == 3 then
       
       gr.draw(menuBackground, 0, 0)
-      --TODO - create menu page
+      gr.setFont(menuHeaderFont)
+      --drink 1
+      local menuCol = 188
+      local secondCol = 0
+      for i=1, 10 do
+        if i > 5 then
+          menuCol = 600
+          secondCol = 800
+        end
+        gr.setColor(love.math.colorFromBytes(173, 130, 207)) -- light purple
+        gr.printf(coffeeDrinks[i].name, menuCol, 110 + (160*(i-1) - secondCol), 400, "left")
+        gr.setColor(love.math.colorFromBytes(255, 216, 169)) -- light yellow
+        gr.setFont(menuContentFont)
+        gr.printf(coffeeDrinks[i].description, menuCol, 152 + (160*(i-1) - secondCol), 360, "left")
+        gr.setColor(love.math.colorFromBytes(255, 179, 102)) -- yellow
+        gr.setFont(menuHeaderFont)
+        if i % 5 ~= 0 then
+          gr.printf(" * ~ * ~ * ~ * ~ * ~ *", menuCol, 220 + (160*(i-1) - secondCol), 350, "center")
+        end
+        
+      end
+      
+      gr.setColor(1, 1, 1)
+      gr.setFont(hintFontSm)
+      gr.printf("(hit 'esc' to leave)", 50, 900, 1032, "center")
       
     end
     
     if currentSceneState == 4 then
+      
+      dogFont = dogFonts[currentDogNum]
       
       gr.draw(chatBackground, 0, 0)
       gr.draw(player.sheet, player.currImg, 760, 540)
@@ -399,7 +559,11 @@ function love.draw()
       --not started
       if orderState == 1 then
         gr.setFont(dogFont)
-        gr.printf(dogInfo[currentDogNum].hello, 316, 250, 598, "left")
+        if dogInfo[currentDogNum].visitedTimes <= 2 then
+          gr.printf(dogInfo[currentDogNum].hello, 316, 250, 598, "left")
+        else
+          gr.printf(dogInfo[currentDogNum].helloLate, 316, 250, 598, "left")
+        end
         gr.setFont(playerVoiceFont)
         gr.printf("Coming right up!", 125, 500, 580, "left")
         gr.setFont(hintFont)
@@ -429,15 +593,21 @@ function love.draw()
       --farewell  
     elseif orderState == 4 then  
         gr.setFont(dogFont)
-        gr.printf(dogInfo[currentDogNum].staying, 316, 250, 598, "left")
+        if currentDog.isStayingToday == true then
+          gr.printf(dogInfo[currentDogNum].staying, 316, 250, 598, "left")
+        else
+          gr.printf(dogInfo[currentDogNum].farewell, 316, 250, 598, "left")
+        end
         gr.setFont(hintFont)
-        gr.printf("(Press 'F' to continue)", 98, 660, 832, "center")
+        gr.printf("('F' to end conversation)", 98, 660, 832, "center")
       end
       
     end
     
     gr.setFont(testFont)
     gr.printf(""..mousex..", "..mousey, mousex, mousey-10, 200, "left")
+    gr.setFont(hintFontSm)
+    gr.printf("Press 'h' to see instructions", 0, 990, 1032, "center")
   end
 
   push:finish()
@@ -476,12 +646,18 @@ function endDay()
     v.visitedToday = false
   end
   
+  for k, v in pairs(seating) do
+    v.occupied = false
+  end
+  
   --add one to dayNum
   dayNum = dayNum + 1
   
   dayHeartCount = 0
   
   globalSceneNum = 1
+  
+  currentDogNum = 0
   
 end
 
@@ -506,69 +682,91 @@ end
 
 
 function love.keypressed(key, scancode, isrepeat)
+  
+  if globalSceneNum >= 10 and globalSceneNum < 14 then
+    globalSceneNum = globalSceneNum + 1
+  elseif globalSceneNum == 14 then
+    globalSceneNum = 1
+  elseif globalSceneNum == 99 then
+    globalSceneNum = 1
+  else
 
-  if key == "e" and not isrepeat then
-    changeSceneState()
-  end
-  
-  if key == "t" and globalSceneNum == 7 then
-    endDay()
-  end
-  
-  if key == "escape" and not isrepeat then
-    if currentSceneState == 2 or currentSceneState == 3 then
-      currentSceneState = 1
+    if key == "e" and not isrepeat then
+      changeSceneState()
     end
-  end
-  
-  if key == "f" and not isrepeat then
-    if currentSceneState == 4 then
-      if orderState == 1 then
-        orderState = orderState + 1
+    
+    if key == "t" and globalSceneNum == 7 then
+      endDay()
+    end
+    
+    if key == "h" then
+      globalSceneNum = 99
+    end
+
+    
+    if key == "escape" and not isrepeat then
+      if currentSceneState == 2 or currentSceneState == 3 then
         currentSceneState = 1
-      elseif orderState == 3 then
-        orderState = orderState + 1
-      elseif orderState == 4 then
-        if wasOrderGood == true then
-          numHearts = numHearts + 1
-          dayHeartCount = dayHeartCount + 1
-        else
-          numHearts = numHearts - 1
-          dayHeartCount = dayHeartCount - 1
-        end
-        orderState = 1
-        pastryOnCounter = nil
-        hasPastry = nil
-        orderUp = false
-        wasOrderGood = false
-        currentSceneState = 1
-        showCupOnCounter = false
-        currentDog.destinationX = seating[dogInfo[currentDogNum].sitChoiceOneId].x
-        currentDog.destinationY = seating[dogInfo[currentDogNum].sitChoiceOneId].y
-        currentDog.isMoving = true
-        currentDog.showCupAtSeat = true
-        currentDog.visitedToday = true
-        table.insert(pastDogs, currentDog)
-        for k, v in pairs(drinkIngredients) do
-          v.isInDrink = false
-        end
-        --addHeartRating()
-        findNewCurrentDog()
-        dayDogCount = dayDogCount + 1
-        --TODO - what else do i need to put here to restart the order?
       end
     end
-  end
-  
-  if key == "y" and not isrepeat then
-    if currentSceneState == 4 and orderState == 2 then
-      orderState = 3
+    
+    if key == "f" and not isrepeat then
+      if currentSceneState == 4 then
+        if orderState == 1 then
+          orderState = orderState + 1
+          currentSceneState = 1
+        elseif orderState == 3 then
+          orderState = orderState + 1
+        elseif orderState == 4 then
+          if wasOrderGood == true then
+            numHearts = numHearts + 1
+            dayHeartCount = dayHeartCount + 1
+          else
+            numHearts = numHearts - 1
+            dayHeartCount = dayHeartCount - 1
+          end
+          orderState = 1
+          pastryOnCounter = nil
+          hasPastry = nil
+          orderUp = false
+          wasOrderGood = false
+          currentSceneState = 1
+          showCupOnCounter = false
+          if seating[dogInfo[currentDogNum].sitChoiceOneId].occupied == true then
+            currentDog.isStayingToday = false
+            currentDog.destinationX = seating[9].x
+            currentDog.destinationY = seating[9].y
+          else
+            if dogInfo[currentDogNum].sitChoiceOneId ~= 9 then
+              seating[dogInfo[currentDogNum].sitChoiceOneId].occupied = true
+            end
+            currentDog.destinationX = seating[dogInfo[currentDogNum].sitChoiceOneId].x
+            currentDog.destinationY = seating[dogInfo[currentDogNum].sitChoiceOneId].y
+          end
+          currentDog.isMoving = true
+          dogInfo[currentDogNum].showCupAtSeat = true
+          dogInfo[currentDogNum].visitedTimes = dogInfo[currentDogNum].visitedTimes + 1
+          table.insert(pastDogs, currentDog)
+          for k, v in pairs(drinkIngredients) do
+            v.isInDrink = false
+          end
+          findNewCurrentDog()
+          dayDogCount = dayDogCount + 1
+          --TODO - what else do i need to put here to restart the order?
+        end
+      end
     end
-  end
-  
-  if key == "n" and not isrepeat then
-    if currentSceneState == 4 and orderState == 2 then
-      currentSceneState = 1
+    
+    if key == "y" and not isrepeat then
+      if currentSceneState == 4 and orderState == 2 then
+        orderState = 3
+      end
+    end
+    
+    if key == "n" and not isrepeat then
+      if currentSceneState == 4 and orderState == 2 then
+        currentSceneState = 1
+      end
     end
   end
 
@@ -579,13 +777,19 @@ function findNewCurrentDog()
   local foundDog = false
   local tries = 0
   while foundDog == false and tries < 10 do
-    local rand = math.random(2)
+    local rand = math.random(10)
     if dogInfo[rand].visitedToday == false then
-      tries = tries + 1
       currentDogNum = rand
       currentDog = dogs["dog"..currentDogNum]
       dogInfo[currentDogNum].visitedToday = true
+      if seating[dogInfo[currentDogNum].sitChoiceOneId].occupied == true or dogInfo[currentDogNum].sitChoiceOneId == 9 then
+        currentDog.isStayingToday = false
+      else
+        currentDog.isStayingToday = true
+      end
       foundDog = true
+    else
+      tries = tries + 1
     end
   end
     
@@ -674,8 +878,7 @@ function showOverheadPromptsBasedOnLocation()
 end
 
 
---TODO - add in a "finish drink" button interaction here
-function love.mousereleased(x, y, button, istouch, presses)
+function love.mousepressed(x, y, button, istouch, presses)
   
   if brewHover == "espresso" then
     
