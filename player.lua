@@ -47,7 +47,7 @@ end
 
 function M.isNearBrewTable(x, y)
   
-  if x > 500 and y <= 140 then
+  if x > 480 and y <= 140 then
     return true
   else
     return false
@@ -69,7 +69,7 @@ end
 
 function M.isNearDog(x, y)
 
-  if x > 260 and x < 450 and y >= 240 then
+  if x > 260 and x < 450 and y >= 236 then
     return true
   else
     return false
@@ -79,7 +79,7 @@ end
 
 function M.isNearPastry(x, y)
   
-  if x > 456 and y >= 240 then
+  if x > 456 and y >= 236 then
     if x > 456 and x < 510 then
       return 1  
     elseif x >= 510 and x < 584 then

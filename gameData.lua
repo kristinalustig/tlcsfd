@@ -31,7 +31,7 @@ function M.initialize()
   coffeeDrinks[3] = {
     
     name = "Super Peppy Puppy Latte",
-    description = "So! Pumped! For this double-shot latte (with milk) and whipped cream.",
+    description = "So! Pumped! For this double-shot latte and whipped cream.",
     numIngredients = 4,
     ingredients = {
     
@@ -116,13 +116,135 @@ function M.initialize()
     
     name = "Bury This Vanilla Delite",
     description = "So good you'll want to bury it for later. Vanilla, one shot, and whipped cream.",
-    numIngredients = 2,
+    numIngredients = 3,
     ingredients = {
     
       1, 6, 8
       
     }
   }
+  
+  coffeeDrinks[11] = {
+    
+    name = "Bury This Vanilla Delite, no whip",
+    description = "",
+    numIngredients = 2,
+    ingredients = {
+    
+      1, 8
+      
+    }
+  }
+  
+  coffeeDrinks[12] = {
+    
+    name = "GRRRaspberry Milk, add sprinkles",
+    description = "A delicately flavored beveRRRage: just milk and raspberry syrup.",
+    numIngredients = 3,
+    ingredients = {
+    
+      3, 10, 7
+      
+    }
+  }
+  
+  coffeeDrinks[13] = {
+    
+    name = "Super Peppy Puppy Latte, just one shot",
+    description = "So! Pumped! For this double-shot latte and whipped cream.",
+    numIngredients = 3,
+    ingredients = {
+    
+      1, 4, 6
+      
+    }
+  }
+  
+  coffeeDrinks[14] = {
+    
+    name = "Puppacino, no rawhide, add vanilla",
+    description = "Classic with a twist. Just whipped cream with rawhide syrup.",
+    numIngredients = 2,
+    ingredients = {
+    
+      6, 8
+      
+    }
+  }
+  
+  coffeeDrinks[15] = {
+    
+    name = "Zoomies Coffee, two shots",
+    description = "Must zoom to get this drink with one shot of espresso and caramel syrup! Hurry!",
+    numIngredients = 3,
+    ingredients = {
+    
+      1, 2, 9
+      
+    }
+  }
+  
+  coffeeDrinks[16] = {
+    
+    name = "Fetch It For Me Latte, no sprinkles",
+    description = "A two shot latte with beautiful latte art and sprinkles. Go fetch!",
+    numIngredients = 4,
+    ingredients = {
+    
+      1, 2, 4, 5
+      
+    }
+  }
+  
+  coffeeDrinks[17] = {
+    
+    name = "Sweetie Sweet Latte, extra shot",
+    description = "One shot latte with every syrup and lovely art. Only for the sweetest of pups.",
+    numIngredients = 8,
+    ingredients = {
+    
+      1, 2, 4, 5, 8, 9, 10, 11
+      
+    }
+  }
+  
+  coffeeDrinks[18] = {
+    
+    name = "Sssssprrrrinkles!, add milk",
+    description = "Do you love sprinkles? I love sprinkles. Whipped cream and sprinkles.",
+    numIngredients = 3,
+    ingredients = {
+    
+      3, 6, 7
+      
+    }
+  }
+  
+  coffeeDrinks[19] = {
+    
+    name = "Bone Milk, add sprinkles",
+    description = "Bone milk for a bone-lovin' dog. Rawhide syrup and milk.",
+    numIngredients = 3,
+    ingredients = {
+    
+      3, 7, 11
+      
+    }
+  }
+  
+    coffeeDrinks[20] = {
+    
+    name = "Mud Cup Woof Woof!, one shot",
+    description = "As basic as basic can be. Two shots of dog-friendly espresso.",
+    numIngredients = 1,
+    ingredients = {
+    
+      1
+      
+    }
+  }
+  
+
 
   dogInfo = {}
 
@@ -211,7 +333,7 @@ function M.initialize()
     finishedPrompt = "Ohboyohboyohboy is it my DRINK?",
     positiveResponse = "YES! I am a good boy! I got a good drink! I got a good snack!",
     negativeResponse = "This isn't what I wanted but IT CAN STILL HELP ME ZOOM!",
-    staying = "Time to run in circles around your table while I snack. And while keep an eye on that RABBIT.",
+    staying = "Time to run in circles around your table while I snack. And while I keep an eye on that RABBIT.",
     farewell = "",
     sitChoiceOneId = 3,
     showCupAtSeat = false,
@@ -316,6 +438,196 @@ function M.initialize()
     
   }
   
+  dogInfo[11] = {
+    
+    name = "Dottie",
+    favoriteDrinkId = 11,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[12] = {
+    
+    name = "",
+    favoriteDrinkId = 12,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[13] = {
+    
+    name = "",
+    favoriteDrinkId = 13,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[14] = {
+    
+    name = "",
+    favoriteDrinkId = 14,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[15] = {
+    
+    name = "",
+    favoriteDrinkId = 15,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[16] = {
+    
+    name = "",
+    favoriteDrinkId = 16,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[17] = {
+    
+    name = "",
+    favoriteDrinkId = 17,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[18] = {
+    
+    name = "",
+    favoriteDrinkId = 18,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[19] = {
+    
+    name = "",
+    favoriteDrinkId = 19,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
+  dogInfo[20] = {
+    
+    name = "",
+    favoriteDrinkId = 20,
+    hello = "",
+    helloLate = "",
+    finishedPrompt = "",
+    positiveResponse = "A",
+    negativeResponse = "",
+    staying = "",
+    farewell = "",
+    sitChoiceOneId = 3,
+    showCupAtSeat = false,
+    visitedToday = false,
+    pastryWanted = 3,
+    visitedTimes = 0
+    
+  }
+  
   
   --TODO - update all seating stuff and fix layering in the dining area
   seating = {}
@@ -336,7 +648,7 @@ function M.initialize()
   seating[2] = 
   {
     
-    x = 282,
+    x = 288,
     y = 575,
     cupX = 270,
     cupY = 550,

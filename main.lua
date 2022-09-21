@@ -9,12 +9,17 @@ function love.load()
   
   math.randomseed(os.time())
   
+  textModifier = 1
+  
   local gameWidth, gameHeight = 1032, 1032
   local windowWidth, windowHeight = love.window.getDesktopDimensions()
-  if windowHeight >= 1032 then
+  if love.system.getOS() == "Web" then
+    windowWidth, windowHeight = 700, 700
+  elseif windowHeight >= 1032 then
     windowWidth, windowHeight = 1032, 1032
   else
     windowWidth, windowHeight = 700, 700
+    textModifier = .8
   end
   
   push:setupScreen(gameWidth, gameHeight, windowWidth, windowHeight, {
@@ -78,6 +83,7 @@ function love.load()
   introContentFont = gr.newFont("/fonts/Mali-Regular.ttf", 25)
   menuContentFont = gr.newFont("/fonts/Quicksand-Regular.ttf", 20)
   hintFont = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 30) -- only for places where UI gives user instructions
+  hintFontMod = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 30*textModifier)
   hintFontSm = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 20) -- smaller instructions
   hintFontXSm = gr.newFont("/fonts/Quicksand-SemiBold.ttf", 14) -- even smaller instructions
   overheadFont = gr.newFont("/fonts/Quicksand-Bold.ttf", 20) -- for E prompts
@@ -133,8 +139,21 @@ function love.load()
   pumpkin[3] = gr.newQuad(136, 0, 68, 60, pumpkinImg)
   pumpkin[4] = gr.newQuad(204, 0, 68, 60, pumpkinImg)
   
+  finishedCoffeeImg = gr.newImage("/assets/finishedCoffee.png")
+  finishedCoffee = {
+    cadence = 10,
+    currentFrameNum = 1,
+    maxFrameNum = 6
+  }
+  finishedCoffee[1] = gr.newQuad(0, 0, 36, 60, finishedCoffeeImg)
+  finishedCoffee[2] = gr.newQuad(36, 0, 36, 60, finishedCoffeeImg)
+  finishedCoffee[3] = gr.newQuad(72, 0, 36, 60, finishedCoffeeImg)
+  finishedCoffee[4] = gr.newQuad(108, 0, 36, 60, finishedCoffeeImg)
+  finishedCoffee[5] = gr.newQuad(144, 0, 36, 60, finishedCoffeeImg)
+  finishedCoffee[6] = gr.newQuad(180, 0, 36, 60, finishedCoffeeImg)
+  
+  
   chatBackground = gr.newImage("/assets/chat-bg.png")
-  finishedCoffee = gr.newImage("/assets/finishedCoffee.png")
   heartEmpty = gr.newImage("/assets/heart-empty.png")
   heartFull = gr.newImage("/assets/heart-full.png")
   
@@ -223,23 +242,32 @@ function love.update(dt)
   --the end
   if numHearts == possibleHeartNum then
     dayTheme:stop()
-    if not gameOverTheme:isPlaying() then gameOverTheme:play() end
+    if not gameOverTheme:isPlaying() then 
+      gameOverTheme:setLooping(false)
+      gameOverTheme:play() end
     globalSceneNum = 8
   elseif numHearts < 0 then
     dayTheme:stop()
-    if not gameOverTheme:isPlaying() then gameOverTheme:play() end
+    if not gameOverTheme:isPlaying() then 
+      gameOverTheme:setLooping(false)
+      gameOverTheme:play() end
     globalSceneNum = 5
   elseif dayNum == 8 then
     dayTheme:stop()
-    if not gameOverTheme:isPlaying() then gameOverTheme:play() end
+    if not gameOverTheme:isPlaying() then 
+      gameOverTheme:setLooping(false)
+      gameOverTheme:play() end
     globalSceneNum = 6
   end
   
   --if we hit the max count then stop and set the scene to 7
-  if dayDogCount > todaysDogLimit and numHearts >= 0 then
+  if dayDogCount > todaysDogLimit and numHearts >= 0 and numHearts ~= possibleHeartNum then
     dayTheme:stop()
     errorSound:stop()
-    if not nightJingle:isPlaying() then nightJingle:play() end
+    if not nightJingle:isPlaying() then
+      nightJingle:setLooping(false)
+      nightJingle:play() 
+    end
     globalSceneNum = 7
     return
   else
@@ -256,7 +284,7 @@ function love.update(dt)
         dayTheme:play()
       end
       if dayDogCount == 0 then
-        todaysDogLimit = math.random(2, 4)
+        todaysDogLimit = math.random(2, 3)
         findNewCurrentDog()
       else
         findNewCurrentDog()
@@ -270,7 +298,7 @@ function love.update(dt)
     mushSprite.currentFrameNum = getCurrentObjFrame(mushSprite, globalTimer)
     mushSprite2.currentFrameNum = getCurrentObjFrame(mushSprite2, globalTimer)
     pumpkin.currentFrameNum = getCurrentObjFrame(pumpkin, globalTimer)
-
+    finishedCoffee.currentFrameNum = getCurrentObjFrame(finishedCoffee, globalTimer)
     
     --calculations for dog animations
     currentDog.currFrameNum = D.getCurrentFrame(currentDog, globalTimer)
@@ -338,28 +366,37 @@ function love.draw()
     
     gr.setFont(introHeaderFont)
     gr.printf("How to play:", 0, 200, 1032, "center")
-    gr.setFont(hintFont)
+    gr.setFont(hintFontMod)
     gr.printf("- Control your avatar with  W A S D", 100, 300, 800, "left")
     gr.printf("- Interact with objects by following on-screen prompts", 100, 360, 800, "left")
     gr.printf("- The only time you'll use your mouse is while you're brewing coffee.", 100, 420, 800, "left")
-    gr.printf("Max out your heart-o-meter by the end of one week. If the heart-o-meter drops below zero, game over.", 100, 580, 800, "left")
-    
-    gr.printf("Anywhere between 2-4 dogs will visit per day - I think I see one now! GOOD LUCK!", 0, 700, 1032, "center")
+    gr.printf("Max out your heart-o-meter by the end of one week by listening closely, remembering orders, and then getting them right. If the heart-o-meter drops below zero, game over.", 100, 580, 800, "left")
     
     gr.setFont(hintFont)
     gr.setColor(1, 1, 1)
     gr.printf("Press any key to continue", 0, 972, 1032, "center")
+    
+  -------INTRO CREDIT PAGE 6  
+  elseif globalSceneNum == 15 then
+    gr.draw(directions, 0, 0)
+    
+    gr.setFont(introHeaderFont)
+    gr.printf("One more thing...", 100, 200, 800, "center")
+    gr.setFont(hintFontMod)
+    gr.printf("Dogs will pretty quickly establish a 'usual' drink. Make sure you remember what that is! Writing it down might help.", 100, 300, 800, "center")
+    gr.printf("Either 2 or 3 dogs will visit per day - I think I see one now! GOOD LUCK!", 100, 580, 800, "center")
+    gr.printf("Press any key to start", 0, 972, 1032, "center")
   
   ---------HELP PAGE
   elseif globalSceneNum == 99 then
     gr.draw(directions, 0, 0)
     gr.setFont(introHeaderFont)
     gr.printf("How to play:", 0, 200, 1032, "center")
-    gr.setFont(hintFont)
+    gr.setFont(hintFontMod)
     gr.printf("- Control your avatar with  W A S D", 100, 300, 800, "left")
     gr.printf("- Interact with objects by following on-screen prompts", 100, 360, 800, "left")
     gr.printf("- The only time you'll use your mouse is while you're brewing coffee.", 100, 420, 800, "left")
-    gr.printf("Max out your heart-o-meter by the end of one week. If the heart-o-meter drops below zero, game over.", 100, 580, 800, "left")
+    gr.printf("Max out your heart-o-meter by the end of one week by listening to orders carefully, remembering regulars, and fulfilling the orders correctly. If the heart-o-meter drops below zero, game over.", 100, 580, 800, "left")
     
     gr.setFont(hintFont)
     gr.setColor(1, 1, 1)
@@ -406,9 +443,10 @@ function love.draw()
     gr.setFont(menuHeaderFont)
     gr.printf("End of day summary:", 0, 300, 946, "center")
     gr.printf("Dogs served: "..dayDogCount-1, 0, 400, 946, "center") 
-    gr.printf("Hearts earned: "..dayHeartCount, 0, 450, 946, "center") 
-    gr.printf("Slobber marks cleaned off tables: 17", 0, 500, 946, "center")
-    gr.printf("Press 'T' to start tomorrow!", 0, 600, 946, "center")
+    gr.printf("Hearts earned (net): "..dayHeartCount, 0, 450, 946, "center") 
+    gr.printf("Slobber marks cleaned off tables: "..math.random(15), 0, 500, 946, "center")
+    gr.printf("Head pats given: "..math.random(200), 0, 550, 946, "center")
+    gr.printf("Press 'T' to start tomorrow!", 0, 650, 946, "center")
   
   
   -----CAFE
@@ -488,7 +526,7 @@ function love.draw()
       
       for k, v in pairs(pastDogs) do
         if dogInfo[v.dogNum].showCupAtSeat == true and dogInfo[v.dogNum].sitChoiceOneId ~=2 then
-          gr.draw(finishedCoffee, seating[dogInfo[v.dogNum].sitChoiceOneId].cupX, seating[dogInfo[v.dogNum].sitChoiceOneId].cupY)
+          gr.draw(finishedCoffeeImg, finishedCoffee[finishedCoffee.currentFrameNum], seating[dogInfo[v.dogNum].sitChoiceOneId].cupX, seating[dogInfo[v.dogNum].sitChoiceOneId].cupY-20)
         end
       end
       
@@ -503,13 +541,13 @@ function love.draw()
       
       for k, v in pairs(pastDogs) do
         if dogInfo[v.dogNum].showCupAtSeat == true then
-          gr.draw(finishedCoffee, seating[dogInfo[v.dogNum].sitChoiceOneId].cupX, seating[dogInfo[v.dogNum].sitChoiceOneId].cupY)
+          gr.draw(finishedCoffeeImg, finishedCoffee[finishedCoffee.currentFrameNum], seating[dogInfo[v.dogNum].sitChoiceOneId].cupX, seating[dogInfo[v.dogNum].sitChoiceOneId].cupY-20)
         end
       end
     
       
       if showCupOnCounter == true then
-        gr.draw(finishedCoffee, 430, 360)
+        gr.draw(finishedCoffeeImg, finishedCoffee[finishedCoffee.currentFrameNum], 420, 328)
       end
       
     elseif currentSceneState == 2 then
@@ -535,10 +573,10 @@ function love.draw()
         gr.setFont(handwritingFont)
         gr.setColor(0, 0, 0, 1)
         if dogInfo[currentDogNum].visitedTimes <= 2 then
-          gr.printf("- "..coffeeDrinks[dogInfo[currentDogNum].favoriteDrinkId].name, 390, 750, 224, "left")
+          gr.printf("- "..coffeeDrinks[dogInfo[currentDogNum].favoriteDrinkId].name, 390, 750, 230, "left")
           gr.printf("- "..snacks[dogInfo[currentDogNum].pastryWanted].name, 390, 810, 224, "left")
         else
-          gr.printf("...?", 390, 750, 224, "left")
+          gr.printf("what's "..dogInfo[currentDogNum].name .. "'s usual?", 390, 750, 224, "left")
         end
       else
         gr.printf("No orders right now", 380, 740, 224, "center")
@@ -574,9 +612,11 @@ function love.draw()
         
       end
       
+      gr.setFont(menuContentFont)
+      gr.printf("super coffee tip: 'latte' drinks always have milk in them!", 50, 890, 1032, "center")
       gr.setColor(1, 1, 1)
       gr.setFont(hintFontSm)
-      gr.printf("(hit 'esc' to leave)", 50, 900, 1032, "center")
+      gr.printf("('esc' or 'e' to leave)", 0, 950, 1032, "center")
       
     end
     
@@ -687,9 +727,20 @@ function endDay()
     v.visitedToday = false
   end
   
+  --reset seating occupied status
   for k, v in pairs(seating) do
     v.occupied = false
   end
+  
+  --reset dogs x and y info
+  for k, v in pairs(dogs) do
+    v.x = v.originalX
+    v.y = v.originalY
+    v.destinationX = v.originalDestX
+    v.destinationY = v.originalDestY
+    v.isMoving = true
+  end
+    
   
   --add one to dayNum
   dayNum = dayNum + 1
@@ -708,11 +759,15 @@ function getCurrentObjFrame(obj, t)
   if (t % obj.cadence == 0) then
     if obj.currentFrameNum == obj.maxFrameNum then
       obj.currentFrameNum = 1
-      obj.cadence = obj.cadence * 5
+      if obj.cadence ~= finishedCoffee.cadence then
+        obj.cadence = obj.cadence * 5
+      end
     else
       obj.currentFrameNum = obj.currentFrameNum + 1
       if obj.currentFrameNum == 2 then
-        obj.cadence = obj.cadence / 5
+        if obj.cadence ~= finishedCoffee.cadence then
+          obj.cadence = obj.cadence / 5
+        end
       end
     end
   end
@@ -724,9 +779,9 @@ end
 
 function love.keypressed(key, scancode, isrepeat)
   
-  if globalSceneNum >= 10 and globalSceneNum < 14 then
+  if globalSceneNum >= 10 and globalSceneNum < 15 then
     globalSceneNum = globalSceneNum + 1
-  elseif globalSceneNum == 14 then
+  elseif globalSceneNum == 15 then
     globalSceneNum = 1
     morningFlourish:play()
     rooster:setVolume(.3)
@@ -792,7 +847,6 @@ function love.keypressed(key, scancode, isrepeat)
           currentDog.isMoving = true
           dogInfo[currentDogNum].showCupAtSeat = true
           dogInfo[currentDogNum].visitedTimes = dogInfo[currentDogNum].visitedTimes + 1
-          print(currentDogNum.."dog visited")
           table.insert(pastDogs, currentDog)
           for k, v in pairs(drinkIngredients) do
             v.isInDrink = false
@@ -802,7 +856,6 @@ function love.keypressed(key, scancode, isrepeat)
           if dayDogCount > todaysDogLimit then 
             globalSceneNum = 7 
           end
-          --TODO - what else do i need to put here to restart the order?
         end
       end
     end
@@ -850,6 +903,14 @@ end
 
 
 function changeSceneState()
+  
+ if currentSceneState == 3 then
+   currentSceneState = 1
+   return
+ elseif currentSceneState == 2 then
+   currentSceneState = 1
+   return
+ end
   
   local x = player.x
   local y = player.y

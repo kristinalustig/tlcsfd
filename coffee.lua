@@ -38,7 +38,7 @@ function M.showBrewPromptsBasedOnMouseLocation()
   local x, y = push:toGame(love.mouse.getX(), love.mouse.getY())
   
   gr.setFont(hintFontXSm)
-  gr.printf("(hit 'esc' to leave)", 814, 926, 134, "center")
+  gr.printf("('esc' or 'e' to leave)", 810, 926, 138, "center")
   gr.setFont(hintFont)
   gr.setColor(love.math.colorFromBytes(74, 55, 120))
   

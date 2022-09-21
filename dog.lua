@@ -13,10 +13,14 @@ function M.new(num)
       isFacingUp = true,
       frames = {},
       x = 480,
-      y = 860,
+      y = 900,
+      originalX = 480,
+      originalY = 900,
       isMoving = true,
       destinationX = 450,
       destinationY = 400,
+      originalDestX = 450,
+      originalDestY = 400,
       speed = 5,
       isStayingToday = false
       
