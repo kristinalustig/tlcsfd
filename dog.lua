@@ -96,6 +96,9 @@ function M.moveDog(self)
     
     -- quick n dirty open the door if you need
     if math.abs(self.x - 460) < 60 and math.abs(self.y - 680) < 100 then
+      if doorOpen == false and not doorBell:isPlaying() and globalSceneNum == 1 then
+        doorBell:play()
+      end
       doorOpen = true
     else
       doorOpen = false

@@ -26,10 +26,11 @@ function love.load()
   gr = love.graphics
   ph = love.physics
   key = love.keyboard
+  la = love.audio
   
   -- global variables
   globalTimer = 0
-  globalSceneNum = 6
+  globalSceneNum = 10
   currentSceneState = 1
   doorOpen = false
   handCursor = love.mouse.getSystemCursor("hand")
@@ -38,7 +39,7 @@ function love.load()
   espressoFirst = true
   orderState = 1
   wasOrderGood = false
-  currentDog = 0
+  currentDog = nil
   currentDogNum = 0
   showCupOnCounter = false
   pastDogs = {}
@@ -47,6 +48,7 @@ function love.load()
   orderUp = false
   pastryOnCounter = nil
   hasPastry = nil
+  todaysDogLimit = 500
   
   --daily summary details
   dayNum = 1
@@ -54,9 +56,18 @@ function love.load()
   dayHeartCount = 0
   dayDogSuccess = 0
   
-  --testing
-  mousex = 0
-  mousey = 0
+  --audio
+  dayTheme = la.newSource("/audio/day-theme.mp3", "stream")
+  nightJingle = la.newSource("/audio/night-jingle.mp3", "stream")
+  gameOverTheme = la.newSource("/audio/game-over-theme.mp3", "stream")
+  
+  bark = la.newSource("/audio/bark.wav", "static")
+  doorBell = la.newSource("/audio/door-open.wav", "static")
+  errorSound = la.newSource("/audio/error.wav", "static")
+  morningFlourish = la.newSource("/audio/morning.mp3", "static")
+  popClick = la.newSource("/audio/pop.wav", "static")
+  rooster = la.newSource("/audio/rooster.wav", "static")
+  successSound = la.newSource("/audio/success.wav", "static")
   
   --fonts
   testFont = gr.newFont(10)
@@ -73,15 +84,15 @@ function love.load()
   dogFontSize = 24
   dogFonts = {}
   dogFonts[1] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[2] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[3] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[4] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[5] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[6] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[7] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[8] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[9] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
-  dogFonts[10] = gr.newFont("/fonts/Quicksand-Regular.ttf", dogFontSize)
+  dogFonts[2] = gr.newFont("/fonts/Courgette-Regular.ttf", dogFontSize)
+  dogFonts[3] = gr.newFont("/fonts/SpecialElite-Regular.ttf", dogFontSize)
+  dogFonts[4] = gr.newFont("/fonts/Kalam-Regular.ttf", dogFontSize)
+  dogFonts[5] = gr.newFont("/fonts/Dangrek-Regular.ttf", dogFontSize)
+  dogFonts[6] = gr.newFont("/fonts/ComingSoon-Regular.ttf", dogFontSize)
+  dogFonts[7] = gr.newFont("/fonts/Pacifico-Regular.ttf", dogFontSize)
+  dogFonts[8] = gr.newFont("/fonts/PermanentMarker-Regular.ttf", dogFontSize)
+  dogFonts[9] = gr.newFont("/fonts/PatrickHand-Regular.ttf", dogFontSize)
+  dogFonts[10] = gr.newFont("/fonts/CutiveMono-Regular.ttf", dogFontSize)
   playerVoiceFont = gr.newFont("/fonts/Mali-Regular.ttf", 30) -- font for player's speech
   dayFont = gr.newImageFont("/fonts/dayFont.png", "1234567") -- font for day counter
   
@@ -204,25 +215,55 @@ end
 
 function love.update(dt)
   
+  if globalSceneNum >=10 or globalSceneNum == 1 and not dayTheme:isPlaying() then
+    dayTheme:setLooping(true)
+    dayTheme:play()
+  end
+  
   --the end
   if numHearts == possibleHeartNum then
+    dayTheme:stop()
+    if not gameOverTheme:isPlaying() then gameOverTheme:play() end
     globalSceneNum = 8
   elseif numHearts < 0 then
+    dayTheme:stop()
+    if not gameOverTheme:isPlaying() then gameOverTheme:play() end
     globalSceneNum = 5
   elseif dayNum == 8 then
+    dayTheme:stop()
+    if not gameOverTheme:isPlaying() then gameOverTheme:play() end
     globalSceneNum = 6
   end
   
-  if currentDogNum == 0 then
-    todaysDogLimit = math.random(2, 4)
-    findNewCurrentDog()
-    dayDogCount = dayDogCount + 1
-  end
-  
-  if dayDogCount == todaysDogLimit and numHearts >= 0 then
+  --if we hit the max count then stop and set the scene to 7
+  if dayDogCount > todaysDogLimit and numHearts >= 0 then
+    dayTheme:stop()
+    errorSound:stop()
+    if not nightJingle:isPlaying() then nightJingle:play() end
     globalSceneNum = 7
+    return
   else
-  
+    if currentDogNum == 0 and globalSceneNum ~= 7 then
+      if globalSceneNum == 1 then
+        nightJingle:stop()
+        if dayDogCount == 0 then
+          morningFlourish:play()
+          rooster:setVolume(.3)
+          rooster:play()
+        end
+      end
+      if not dayTheme:isPlaying() then
+        dayTheme:play()
+      end
+      if dayDogCount == 0 then
+        todaysDogLimit = math.random(2, 4)
+        findNewCurrentDog()
+      else
+        findNewCurrentDog()
+      end
+      
+    end
+    
     globalTimer = globalTimer + 1
     
     --calculations for obj animations
@@ -241,11 +282,13 @@ function love.update(dt)
     end
     
     if orderState == 3 then
-      -- check orders against each other here! but for now,
+      -- check orders against each other here!
       wasOrderGood = testOrder(coffeeDrinks[dogInfo[currentDog.dogNum].favoriteDrinkId], dogInfo[currentDogNum].pastryWanted)
         
     end
   end
+  
+  
   
 end
 
@@ -301,7 +344,7 @@ function love.draw()
     gr.printf("- The only time you'll use your mouse is while you're brewing coffee.", 100, 420, 800, "left")
     gr.printf("Max out your heart-o-meter by the end of one week. If the heart-o-meter drops below zero, game over.", 100, 580, 800, "left")
     
-    gr.printf("I bet there's already a dog waiting for coffee. GOOD LUCK!", 0, 700, 1032, "center")
+    gr.printf("Anywhere between 2-4 dogs will visit per day - I think I see one now! GOOD LUCK!", 0, 700, 1032, "center")
     
     gr.setFont(hintFont)
     gr.setColor(1, 1, 1)
@@ -362,7 +405,7 @@ function love.draw()
     gr.draw(nightBackground, 0, 0)
     gr.setFont(menuHeaderFont)
     gr.printf("End of day summary:", 0, 300, 946, "center")
-    gr.printf("Dogs served: "..dayDogCount, 0, 400, 946, "center") 
+    gr.printf("Dogs served: "..dayDogCount-1, 0, 400, 946, "center") 
     gr.printf("Hearts earned: "..dayHeartCount, 0, 450, 946, "center") 
     gr.printf("Slobber marks cleaned off tables: 17", 0, 500, 946, "center")
     gr.printf("Press 'T' to start tomorrow!", 0, 600, 946, "center")
@@ -604,8 +647,6 @@ function love.draw()
       
     end
     
-    gr.setFont(testFont)
-    gr.printf(""..mousex..", "..mousey, mousex, mousey-10, 200, "left")
     gr.setFont(hintFontSm)
     gr.printf("Press 'h' to see instructions", 0, 990, 1032, "center")
   end
@@ -634,7 +675,7 @@ end
 
 
 function endDay()
-  
+
   --reset dog count
   dayDogCount = 0
   
@@ -687,11 +728,14 @@ function love.keypressed(key, scancode, isrepeat)
     globalSceneNum = globalSceneNum + 1
   elseif globalSceneNum == 14 then
     globalSceneNum = 1
+    morningFlourish:play()
+    rooster:setVolume(.3)
+    rooster:play()
   elseif globalSceneNum == 99 then
     globalSceneNum = 1
   else
 
-    if key == "e" and not isrepeat then
+    if key == "e" then
       changeSceneState()
     end
     
@@ -719,9 +763,11 @@ function love.keypressed(key, scancode, isrepeat)
           orderState = orderState + 1
         elseif orderState == 4 then
           if wasOrderGood == true then
+            successSound:play()
             numHearts = numHearts + 1
             dayHeartCount = dayHeartCount + 1
           else
+            errorSound:play()
             numHearts = numHearts - 1
             dayHeartCount = dayHeartCount - 1
           end
@@ -746,12 +792,16 @@ function love.keypressed(key, scancode, isrepeat)
           currentDog.isMoving = true
           dogInfo[currentDogNum].showCupAtSeat = true
           dogInfo[currentDogNum].visitedTimes = dogInfo[currentDogNum].visitedTimes + 1
+          print(currentDogNum.."dog visited")
           table.insert(pastDogs, currentDog)
           for k, v in pairs(drinkIngredients) do
             v.isInDrink = false
           end
-          findNewCurrentDog()
-          dayDogCount = dayDogCount + 1
+          currentDog = nil
+          currentDogNum = 0
+          if dayDogCount > todaysDogLimit then 
+            globalSceneNum = 7 
+          end
           --TODO - what else do i need to put here to restart the order?
         end
       end
@@ -773,7 +823,7 @@ function love.keypressed(key, scancode, isrepeat)
 end
 
 function findNewCurrentDog()
-  
+  if dayDogCount > todaysDogLimit then return false end
   local foundDog = false
   local tries = 0
   while foundDog == false and tries < 10 do
@@ -788,10 +838,12 @@ function findNewCurrentDog()
         currentDog.isStayingToday = true
       end
       foundDog = true
+      dayDogCount = dayDogCount + 1
     else
       tries = tries + 1
     end
   end
+  return true
     
 end
 
@@ -815,6 +867,7 @@ function changeSceneState()
       pastryOnCounter = hasPastry
       hasPastry = nil
     else
+      if currentSceneState ~= 4 then bark:play() end
       currentSceneState = 4
     end
   --pick up pastry (only when there's a dog there)
@@ -879,6 +932,8 @@ end
 
 
 function love.mousepressed(x, y, button, istouch, presses)
+  
+  if brewHover then popClick:play() end
   
   if brewHover == "espresso" then
     
@@ -970,24 +1025,6 @@ function love.resize(w, h)
   push:resize(w, h)
 end
 
-
-
---TESTING ONLY
-function showCoords(obj)
-  
-  gr.setFont(testFont)
-  gr.printf(""..obj.x..", "..obj.y, obj.x+30, obj.y+30, 100, "left")
-  
-end
-
-function love.mousemoved(x, y, dx, dy, istouch)
-  
-  local x, y = push:toGame(love.mouse.getX(), love.mouse.getY())
-  
-  mousex = x
-  mousey = y
-  
-end
 
 
 
