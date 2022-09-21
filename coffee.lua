@@ -55,7 +55,7 @@ function M.showBrewPromptsBasedOnMouseLocation()
     love.mouse.setCursor(handCursor)
     brewHover = "sprinkles"
   --espresso
-elseif x > 98 and x < 205 and y > 350 and y < 750 then
+  elseif x > 98 and x < 205 and y > 350 and y < 750 then
     if drinkIngredients[2].isInDrink == true then
       gr.printf("two shots is plenty", 115, 948, 835, "center")
     elseif espressoFirst == false then

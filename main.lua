@@ -97,7 +97,7 @@ function love.load()
   dogFonts[4] = gr.newFont("/fonts/Kalam-Regular.ttf", dogFontSize)
   dogFonts[5] = gr.newFont("/fonts/Dangrek-Regular.ttf", dogFontSize)
   dogFonts[6] = gr.newFont("/fonts/ComingSoon-Regular.ttf", dogFontSize)
-  dogFonts[7] = gr.newFont("/fonts/Pacifico-Regular.ttf", dogFontSize)
+  dogFonts[7] = gr.newFont("/fonts/MarckScript-Regular.ttf", dogFontSize)
   dogFonts[8] = gr.newFont("/fonts/PermanentMarker-Regular.ttf", dogFontSize)
   dogFonts[9] = gr.newFont("/fonts/PatrickHand-Regular.ttf", dogFontSize)
   dogFonts[10] = gr.newFont("/fonts/CutiveMono-Regular.ttf", dogFontSize)
@@ -307,7 +307,7 @@ function love.update(dt)
         dayTheme:play()
       end
       if dayDogCount == 0 then
-        todaysDogLimit = math.random(2, 3)
+        todaysDogLimit = 3
         findNewCurrentDog()
       else
         findNewCurrentDog()
@@ -586,7 +586,7 @@ function love.draw()
         gr.printf("ORDER SLIP", 370, 718, 230, "center")
         gr.setFont(handwritingFont)
         gr.setColor(0, 0, 0, 1)
-        if dogInfo[currentDogNum].visitedTimes <= 2 then
+        if dogInfo[currentDogNum].visitedTimes == 0 then
           gr.printf("- "..coffeeDrinks[dogInfo[currentDogNum].favoriteDrinkId].name, 390, 750, 230, "left")
           gr.printf("- "..snacks[dogInfo[currentDogNum].pastryWanted].name, 390, 810, 224, "left")
         else
@@ -701,6 +701,8 @@ function love.draw()
         else
           gr.printf(dogInfo[currentDogNum].farewell, 316, 250, 598, "left")
         end
+        gr.setFont(playerVoiceFont)
+        gr.printf("Come back again soon!", 125, 500, 580, "left")
         gr.setFont(hintFont)
         gr.printf("('E' to end conversation)", 98, 660, 832, "center")
       end
@@ -845,11 +847,11 @@ function love.keypressed(key, scancode, isrepeat)
           orderState = orderState + 1
         elseif orderState == 4 then
           if wasOrderGood == true then
-            successSound:play()
+            --successSound:play()
             numHearts = numHearts + 1
             dayHeartCount = dayHeartCount + 1
           else
-            errorSound:play()
+            --errorSound:play()
             numHearts = numHearts - 1
             dayHeartCount = dayHeartCount - 1
           end
@@ -889,6 +891,11 @@ function love.keypressed(key, scancode, isrepeat)
     
     if key == "y" and not isrepeat then
       if currentSceneState == 4 and orderState == 2 then
+        if testOrder(coffeeDrinks[dogInfo[currentDog.dogNum].favoriteDrinkId], dogInfo[currentDogNum].pastryWanted) == true then
+          successSound:play()
+        else
+          errorSound:play()
+        end
         orderState = 3
       end
     end
